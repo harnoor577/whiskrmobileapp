@@ -191,6 +191,8 @@ export default function CaseSummaryScreen() {
   const [showMedicineModal, setShowMedicineModal] = useState(false);
   const [showRecordingModal, setShowRecordingModal] = useState(false);
   const [showDischargeModal, setShowDischargeModal] = useState(false);
+  const [showAtlasChat, setShowAtlasChat] = useState(false);
+  const [atlasMessageCount, setAtlasMessageCount] = useState(0);
   
   // Generation states
   const [isGeneratingEducation, setIsGeneratingEducation] = useState(false);
