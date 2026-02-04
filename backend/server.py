@@ -36,6 +36,26 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+# Analyze Recording Models
+class PatientInfo(BaseModel):
+    patientId: Optional[str] = None
+    name: Optional[str] = None
+    species: Optional[str] = None
+
+class PreviousMessage(BaseModel):
+    role: str
+    content: str
+
+class AnalyzeRecordingRequest(BaseModel):
+    transcription: Optional[str] = None
+    patientInfo: Optional[PatientInfo] = None
+    consultId: Optional[str] = None
+    followUpQuestion: Optional[str] = None
+    previousMessages: Optional[List[PreviousMessage]] = None
+
+class AnalyzeRecordingResponse(BaseModel):
+    analysis: str
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
