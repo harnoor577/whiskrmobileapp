@@ -27,15 +27,15 @@ export default function WelcomeScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.content}>
         {/* Logo Section */}
         <View style={styles.logoSection}>
-          <View style={styles.logoContainer}>
-            <Ionicons name="medical" size={48} color="#1ce881" />
+          <View style={[styles.logoContainer, { backgroundColor: theme.card }]}>
+            <Ionicons name="medical" size={48} color={theme.primary} />
           </View>
-          <Text style={styles.appName}>whiskr</Text>
-          <Text style={styles.tagline}>Your Veterinary Clinical Copilot</Text>
+          <Text style={[styles.appName, { color: theme.textPrimary }]}>whiskr</Text>
+          <Text style={[styles.tagline, { color: theme.textSecondary }]}>Your Veterinary Clinical Copilot</Text>
         </View>
 
         {/* Features Section */}
@@ -44,16 +44,19 @@ export default function WelcomeScreen() {
             icon="mic-outline"
             title="Voice-Powered Notes"
             description="Record consultations and let AI transcribe them"
+            theme={theme}
           />
           <FeatureItem
             icon="document-text-outline"
             title="SOAP Notes"
             description="Generate comprehensive clinical documentation"
+            theme={theme}
           />
           <FeatureItem
             icon="time-outline"
             title="Save Time"
             description="Reduce documentation time by up to 50%"
+            theme={theme}
           />
         </View>
 
