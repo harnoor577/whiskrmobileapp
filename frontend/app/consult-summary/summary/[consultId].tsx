@@ -779,6 +779,62 @@ export default function CaseSummaryScreen() {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      {/* Discharge Summary Modal */}
+      <Modal
+        visible={showDischargeModal}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowDischargeModal(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1} 
+          onPress={() => setShowDischargeModal(false)}
+        >
+          <View style={styles.modalContent}>
+            <View style={styles.modalHandle} />
+            <View style={styles.modalHeader}>
+              <View style={styles.modalTitleRow}>
+                <Ionicons name="exit" size={24} color="#0ea5e9" />
+                <Text style={styles.modalTitle}>Discharge Summary</Text>
+              </View>
+              <View style={styles.modalHeaderActions}>
+                <TouchableOpacity style={[styles.modalCopyAll, { backgroundColor: '#e0f2fe' }]} onPress={handleCopyDischarge}>
+                  <Ionicons name="copy-outline" size={16} color="#0ea5e9" />
+                  <Text style={[styles.modalCopyAllText, { color: '#0ea5e9' }]}>Copy All</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setShowDischargeModal(false)}>
+                  <Ionicons name="close" size={24} color="#64748b" />
+                </TouchableOpacity>
+              </View>
+            </View>
+            
+            <ScrollView style={styles.modalScrollView}>
+              {dischargeSections.length > 0 ? (
+                dischargeSections.map((section, index) => (
+                  <View key={index} style={styles.dischargeSection}>
+                    <View style={styles.dischargeSectionHeader}>
+                      <Text style={styles.dischargeSectionTitle}>{section.title}</Text>
+                      <TouchableOpacity 
+                        onPress={async () => {
+                          await Clipboard.setStringAsync(section.content);
+                          Alert.alert('Copied', `${section.title} copied to clipboard`);
+                        }}
+                      >
+                        <Ionicons name="copy-outline" size={14} color="#94a3b8" />
+                      </TouchableOpacity>
+                    </View>
+                    <Text style={styles.dischargeSectionContent}>{section.content}</Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.emptyStateText}>No discharge summary generated.</Text>
+              )}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
