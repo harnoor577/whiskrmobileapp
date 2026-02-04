@@ -139,8 +139,8 @@ async def call_gemini_api(prompt: str, system_prompt: str) -> str:
     if not api_key:
         raise HTTPException(status_code=500, detail="Gemini API key not configured")
 
-    # Use gemini-pro which is stable and available
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={api_key}"
+    # Use gemini-2.5-flash which is the latest stable version
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
     
     payload = {
         "contents": [
@@ -151,8 +151,8 @@ async def call_gemini_api(prompt: str, system_prompt: str) -> str:
         ],
         "generationConfig": {
             "temperature": 0.7,
-            "topK": 40,
             "topP": 0.95,
+            "topK": 40,
             "maxOutputTokens": 2048,
         }
     }
