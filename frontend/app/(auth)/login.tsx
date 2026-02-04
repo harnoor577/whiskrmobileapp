@@ -266,7 +266,6 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafbfc',
   },
   keyboardView: {
     flex: 1,
@@ -280,7 +279,6 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#f1f5f9',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 8,
@@ -294,7 +292,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 16,
-    backgroundColor: '#101235',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
@@ -302,12 +299,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#101235',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#64748b',
     textAlign: 'center',
   },
   form: {
@@ -320,7 +315,6 @@ const styles = StyleSheet.create({
   },
   forgotPasswordText: {
     fontSize: 14,
-    color: '#1ce881',
     fontWeight: '500',
   },
   loginButton: {
@@ -334,19 +328,16 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#e2e8f0',
   },
   dividerText: {
     marginHorizontal: 16,
     fontSize: 12,
-    color: '#64748b',
     textTransform: 'uppercase',
   },
   googleButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#101235',
     paddingVertical: 14,
     borderRadius: 12,
     gap: 12,
@@ -354,6 +345,5 @@ const styles = StyleSheet.create({
   googleButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
   },
 });
