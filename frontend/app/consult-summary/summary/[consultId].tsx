@@ -449,6 +449,73 @@ export default function CaseSummaryScreen() {
           )}
         </View>
 
+        {/* Quick Action Buttons Row */}
+        <View style={styles.actionButtonsRow}>
+          <TouchableOpacity 
+            style={[styles.actionButton, !consult.discharge_summary && !isGeneratingDischarge && styles.actionButtonDisabled]}
+            onPress={() => consult.discharge_summary && setShowDischargeModal(true)}
+            disabled={!consult.discharge_summary && !isGeneratingDischarge}
+          >
+            {isGeneratingDischarge ? (
+              <ActivityIndicator size="small" color="#0ea5e9" />
+            ) : (
+              <Ionicons name="exit-outline" size={18} color={consult.discharge_summary ? "#0ea5e9" : "#94a3b8"} />
+            )}
+            <Text style={[styles.actionButtonText, !consult.discharge_summary && styles.actionButtonTextDisabled]}>
+              Discharge
+            </Text>
+            {consult.discharge_summary && (
+              <View style={styles.actionButtonBadge}>
+                <Ionicons name="checkmark" size={10} color="#ffffff" />
+              </View>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.actionButton, !consult.client_education && !isGeneratingEducation && styles.actionButtonDisabled]}
+            onPress={() => consult.client_education && setShowEducationModal(true)}
+            disabled={!consult.client_education && !isGeneratingEducation}
+          >
+            {isGeneratingEducation ? (
+              <ActivityIndicator size="small" color="#22c55e" />
+            ) : (
+              <Ionicons name="book-outline" size={18} color={consult.client_education ? "#22c55e" : "#94a3b8"} />
+            )}
+            <Text style={[styles.actionButtonText, !consult.client_education && styles.actionButtonTextDisabled]}>
+              Education
+            </Text>
+            {consult.client_education && (
+              <View style={[styles.actionButtonBadge, { backgroundColor: '#22c55e' }]}>
+                <Ionicons name="checkmark" size={10} color="#ffffff" />
+              </View>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.actionButton, extractedMedications.length === 0 && styles.actionButtonDisabled]}
+            onPress={() => extractedMedications.length > 0 && setShowMedicineModal(true)}
+            disabled={extractedMedications.length === 0}
+          >
+            <Ionicons name="medkit-outline" size={18} color={extractedMedications.length > 0 ? "#8b5cf6" : "#94a3b8"} />
+            <Text style={[styles.actionButtonText, extractedMedications.length === 0 && styles.actionButtonTextDisabled]}>
+              Medicine
+            </Text>
+            {extractedMedications.length > 0 && (
+              <View style={[styles.actionButtonBadge, { backgroundColor: '#8b5cf6' }]}>
+                <Text style={styles.actionButtonBadgeText}>{extractedMedications.length}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => setShowRecordingModal(true)}
+          >
+            <Ionicons name="mic-outline" size={18} color="#f59e0b" />
+            <Text style={styles.actionButtonText}>Recording</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* SOAP Sections */}
         <View style={styles.soapContainer}>
           <View style={styles.soapHeader}>
