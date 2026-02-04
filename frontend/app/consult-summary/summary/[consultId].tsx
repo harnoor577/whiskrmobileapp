@@ -255,15 +255,32 @@ export default function CaseSummaryScreen() {
       </ScrollView>
 
       {/* Bottom Actions */}
-      <View style={styles.bottomActions}>
-        <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-          <Ionicons name="create-outline" size={20} color="#64748b" />
-          <Text style={styles.editButtonText}>Edit</Text>
+      <View style={[styles.bottomActions, { paddingBottom: insets.bottom > 0 ? insets.bottom : 16 }]}>
+        <TouchableOpacity style={styles.bottomBarItem} onPress={() => router.push('/(tabs)' as any)}>
+          <Ionicons name="home-outline" size={24} color="#ffffff" />
+          <Text style={styles.bottomBarLabel}>Dashboard</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity style={styles.newConsultButton} onPress={handleNewConsult}>
-          <Ionicons name="add-circle" size={20} color="#101235" />
-          <Text style={styles.newConsultButtonText}>New Consult</Text>
+        
+        <TouchableOpacity style={styles.bottomBarItem} onPress={() => router.push('/(tabs)/patients' as any)}>
+          <Ionicons name="people-outline" size={24} color="#ffffff" />
+          <Text style={styles.bottomBarLabel}>Patient</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.recordingButton} onPress={() => router.push('/(tabs)' as any)}>
+          <View style={styles.recordingButtonInner}>
+            <Ionicons name="mic" size={28} color="#101235" />
+          </View>
+          <Text style={styles.recordingLabel}>Recording</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.bottomBarItem} onPress={() => Alert.alert('Education', 'Coming soon!')}>
+          <Ionicons name="book-outline" size={24} color="#ffffff" />
+          <Text style={styles.bottomBarLabel}>Education</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.bottomBarItem} onPress={() => Alert.alert('Medicine', 'Coming soon!')}>
+          <Ionicons name="medkit-outline" size={24} color="#ffffff" />
+          <Text style={styles.bottomBarLabel}>Medicine</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
