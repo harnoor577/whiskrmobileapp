@@ -561,45 +561,230 @@ export default function CaseSummaryScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* SOAP Sections */}
-        <View style={styles.soapContainer}>
-          <View style={styles.soapHeader}>
-            <View style={styles.soapTitleRow}>
-              <Ionicons name="document-text" size={20} color="#1ce881" />
-              <Text style={styles.soapTitle}>SOAP Notes</Text>
-            </View>
-            <TouchableOpacity 
-              style={styles.copyAllButton}
-              onPress={handleShare}
+        {/* Report Type Selector - shown only if multiple report types exist */}
+        {(hasSOAP || wellnessData || procedureData) && (
+          <View style={styles.reportTypeRow}>
+            <Text style={styles.reportTypeLabel}>Report:</Text>
+            
+            <TouchableOpacity
+              style={[
+                styles.reportTypeButton,
+                selectedReportType === 'soap' && styles.reportTypeButtonActive,
+                !hasSOAP && styles.reportTypeButtonDisabled
+              ]}
+              onPress={() => hasSOAP && setSelectedReportType('soap')}
+              disabled={!hasSOAP}
             >
-              <Ionicons name="copy-outline" size={16} color="#64748b" />
-              <Text style={styles.copyAllText}>Copy All</Text>
+              <Ionicons 
+                name="document-text" 
+                size={16} 
+                color={selectedReportType === 'soap' ? '#ffffff' : hasSOAP ? '#3b82f6' : '#94a3b8'} 
+              />
+              <Text style={[
+                styles.reportTypeButtonText,
+                selectedReportType === 'soap' && styles.reportTypeButtonTextActive,
+                !hasSOAP && styles.reportTypeButtonTextDisabled
+              ]}>
+                SOAP
+              </Text>
+              {hasSOAP && <Ionicons name="checkmark-circle" size={14} color={selectedReportType === 'soap' ? '#ffffff' : '#22c55e'} />}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.reportTypeButton,
+                selectedReportType === 'wellness' && styles.reportTypeButtonActiveGreen,
+                !wellnessData && styles.reportTypeButtonDisabled
+              ]}
+              onPress={() => wellnessData && setSelectedReportType('wellness')}
+              disabled={!wellnessData}
+            >
+              <Ionicons 
+                name="fitness" 
+                size={16} 
+                color={selectedReportType === 'wellness' ? '#ffffff' : wellnessData ? '#22c55e' : '#94a3b8'} 
+              />
+              <Text style={[
+                styles.reportTypeButtonText,
+                selectedReportType === 'wellness' && styles.reportTypeButtonTextActive,
+                !wellnessData && styles.reportTypeButtonTextDisabled
+              ]}>
+                Wellness
+              </Text>
+              {wellnessData && <Ionicons name="checkmark-circle" size={14} color={selectedReportType === 'wellness' ? '#ffffff' : '#22c55e'} />}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.reportTypeButton,
+                selectedReportType === 'procedure' && styles.reportTypeButtonActivePurple,
+                !procedureData && styles.reportTypeButtonDisabled
+              ]}
+              onPress={() => procedureData && setSelectedReportType('procedure')}
+              disabled={!procedureData}
+            >
+              <Ionicons 
+                name="cut" 
+                size={16} 
+                color={selectedReportType === 'procedure' ? '#ffffff' : procedureData ? '#8b5cf6' : '#94a3b8'} 
+              />
+              <Text style={[
+                styles.reportTypeButtonText,
+                selectedReportType === 'procedure' && styles.reportTypeButtonTextActive,
+                !procedureData && styles.reportTypeButtonTextDisabled
+              ]}>
+                Procedure
+              </Text>
+              {procedureData && <Ionicons name="checkmark-circle" size={14} color={selectedReportType === 'procedure' ? '#ffffff' : '#22c55e'} />}
             </TouchableOpacity>
           </View>
-          
-          {(Object.keys(soapData) as Array<keyof SOAPData>).map((section) => (
-            <View key={section} style={styles.soapSection}>
-              <View style={styles.soapSectionHeader}>
-                <View style={[styles.soapIndicator, { backgroundColor: SECTION_COLORS[section] }]} />
-                <Text style={[styles.soapSectionTitle, { color: SECTION_COLORS[section] }]}>
-                  {SECTION_LABELS[section]}
-                </Text>
-                <TouchableOpacity 
-                  style={styles.copySectionButton}
-                  onPress={async () => {
-                    await Clipboard.setStringAsync(soapData[section] || '');
-                    Alert.alert('Copied', `${SECTION_LABELS[section]} copied to clipboard`);
-                  }}
-                >
-                  <Ionicons name="copy-outline" size={14} color="#94a3b8" />
-                </TouchableOpacity>
+        )}
+
+        {/* SOAP Notes - shown when SOAP is selected */}
+        {selectedReportType === 'soap' && hasSOAP && (
+          <View style={[styles.soapContainer, styles.reportContainer]}>
+            <View style={styles.soapHeader}>
+              <View style={styles.soapTitleRow}>
+                <Ionicons name="document-text" size={20} color="#3b82f6" />
+                <Text style={styles.soapTitle}>SOAP Notes</Text>
               </View>
-              <Text style={styles.soapSectionContent}>
-                {soapData[section] || 'No data recorded'}
-              </Text>
+              <TouchableOpacity 
+                style={styles.copyAllButton}
+                onPress={handleShare}
+              >
+                <Ionicons name="copy-outline" size={16} color="#64748b" />
+                <Text style={styles.copyAllText}>Copy All</Text>
+              </TouchableOpacity>
             </View>
-          ))}
-        </View>
+            
+            {(Object.keys(soapData) as Array<keyof SOAPData>).map((section) => (
+              <View key={section} style={styles.soapSection}>
+                <View style={styles.soapSectionHeader}>
+                  <View style={[styles.soapIndicator, { backgroundColor: SECTION_COLORS[section] }]} />
+                  <Text style={[styles.soapSectionTitle, { color: SECTION_COLORS[section] }]}>
+                    {SECTION_LABELS[section]}
+                  </Text>
+                  <TouchableOpacity 
+                    style={styles.copySectionButton}
+                    onPress={async () => {
+                      await Clipboard.setStringAsync(soapData[section] || '');
+                      Alert.alert('Copied', `${SECTION_LABELS[section]} copied to clipboard`);
+                    }}
+                  >
+                    <Ionicons name="copy-outline" size={14} color="#94a3b8" />
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.soapSectionContent}>
+                  {soapData[section] || 'No data recorded'}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Wellness Report - shown when Wellness is selected */}
+        {selectedReportType === 'wellness' && wellnessData && (
+          <View style={[styles.reportContainer, { borderLeftColor: '#22c55e' }]}>
+            <View style={styles.soapHeader}>
+              <View style={styles.soapTitleRow}>
+                <Ionicons name="fitness" size={20} color="#22c55e" />
+                <Text style={styles.soapTitle}>Wellness Report</Text>
+              </View>
+              <TouchableOpacity 
+                style={styles.copyAllButton}
+                onPress={async () => {
+                  const text = Object.entries(wellnessData)
+                    .map(([key, value]) => `${key.replace(/([a-z])([A-Z])/g, '$1 $2').toUpperCase()}:\n${value}`)
+                    .join('\n\n');
+                  await Clipboard.setStringAsync(text);
+                  Alert.alert('Copied', 'Wellness report copied to clipboard');
+                }}
+              >
+                <Ionicons name="copy-outline" size={16} color="#64748b" />
+                <Text style={styles.copyAllText}>Copy All</Text>
+              </TouchableOpacity>
+            </View>
+            
+            {Object.entries(wellnessData).map(([key, value]) => (
+              <View key={key} style={styles.soapSection}>
+                <View style={styles.soapSectionHeader}>
+                  <View style={[styles.soapIndicator, { backgroundColor: '#22c55e' }]} />
+                  <Text style={[styles.soapSectionTitle, { color: '#22c55e' }]}>
+                    {key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/_/g, ' ')}
+                  </Text>
+                  <TouchableOpacity 
+                    style={styles.copySectionButton}
+                    onPress={async () => {
+                      await Clipboard.setStringAsync(String(value));
+                      Alert.alert('Copied', `${key} copied to clipboard`);
+                    }}
+                  >
+                    <Ionicons name="copy-outline" size={14} color="#94a3b8" />
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.soapSectionContent}>
+                  {typeof value === 'string' ? value : JSON.stringify(value, null, 2)}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Procedure Report - shown when Procedure is selected */}
+        {selectedReportType === 'procedure' && procedureData && (
+          <View style={[styles.reportContainer, { borderLeftColor: '#8b5cf6' }]}>
+            <View style={styles.soapHeader}>
+              <View style={styles.soapTitleRow}>
+                <Ionicons name="cut" size={20} color="#8b5cf6" />
+                <Text style={styles.soapTitle}>Procedural Notes</Text>
+              </View>
+              <TouchableOpacity 
+                style={styles.copyAllButton}
+                onPress={async () => {
+                  const text = Object.entries(procedureData)
+                    .map(([key, value]) => `${key.replace(/([a-z])([A-Z])/g, '$1 $2').toUpperCase()}:\n${value}`)
+                    .join('\n\n');
+                  await Clipboard.setStringAsync(text);
+                  Alert.alert('Copied', 'Procedure notes copied to clipboard');
+                }}
+              >
+                <Ionicons name="copy-outline" size={16} color="#64748b" />
+                <Text style={styles.copyAllText}>Copy All</Text>
+              </TouchableOpacity>
+            </View>
+            
+            {Object.entries(procedureData).map(([key, value]) => (
+              <View key={key} style={styles.soapSection}>
+                <View style={styles.soapSectionHeader}>
+                  <View style={[styles.soapIndicator, { backgroundColor: '#8b5cf6' }]} />
+                  <Text style={[styles.soapSectionTitle, { color: '#8b5cf6' }]}>
+                    {key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/_/g, ' ')}
+                  </Text>
+                  <TouchableOpacity 
+                    style={styles.copySectionButton}
+                    onPress={async () => {
+                      await Clipboard.setStringAsync(String(value));
+                      Alert.alert('Copied', `${key} copied to clipboard`);
+                    }}
+                  >
+                    <Ionicons name="copy-outline" size={14} color="#94a3b8" />
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.soapSectionContent}>
+                  {typeof value === 'string' ? value : JSON.stringify(value, null, 2)}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* No Report Available */}
+        {!selectedReportType && !hasSOAP && !wellnessData && !procedureData && (
+          <View style={styles.emptyReportContainer}>
+            <Ionicons name="document-outline" size={48} color="#94a3b8" />
+            <Text style={styles.emptyReportText}>No report generated for this consultation yet.</Text>
+          </View>
+        )}
         
         {/* Bottom padding for navigation bar */}
         <View style={{ height: 120 }} />
