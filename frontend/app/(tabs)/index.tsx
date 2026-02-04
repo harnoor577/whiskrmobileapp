@@ -36,6 +36,7 @@ interface RecentPatient {
 export default function DashboardScreen() {
   const router = useRouter();
   const { user, clinicId, clinicRole } = useAuthStore();
+  const { theme, isDark, toggleTheme } = useTheme();
   const [metrics, setMetrics] = useState<DashboardMetrics>({
     totalPatients: 0,
     consultsThisWeek: 0,
