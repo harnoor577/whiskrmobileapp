@@ -139,7 +139,8 @@ async def call_gemini_api(prompt: str, system_prompt: str) -> str:
     if not api_key:
         raise HTTPException(status_code=500, detail="Gemini API key not configured")
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={api_key}"
+    # Use gemini-1.5-flash which is more widely available
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
     
     payload = {
         "contents": [
@@ -162,17 +163,7 @@ async def call_gemini_api(prompt: str, system_prompt: str) -> str:
         if response.status_code != 200:
             error_text = response.text
             logger.error(f"Gemini API error: {response.status_code} - {error_text}")
-            
-            # Try different model if first one fails
-            if response.status_code == 429 or response.status_code == 404:
-                # Try gemini-1.5-flash as fallback
-                fallback_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-                response = await http_client.post(fallback_url, json=payload)
-                
-                if response.status_code != 200:
-                    raise HTTPException(status_code=500, detail=f"AI API error: {response.status_code}")
-            else:
-                raise HTTPException(status_code=500, detail=f"AI API error: {response.status_code}")
+            raise HTTPException(status_code=500, detail=f"AI API error: {response.status_code} - {error_text[:200]}")
         
         data = response.json()
         
