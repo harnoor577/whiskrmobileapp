@@ -173,7 +173,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
@@ -185,19 +185,19 @@ export default function LoginScreen() {
         >
           {/* Back Button */}
           <TouchableOpacity
-            style={styles.backButton}
+            style={[styles.backButton, { backgroundColor: theme.muted }]}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#64748b" />
+            <Ionicons name="arrow-back" size={24} color={theme.textSecondary} />
           </TouchableOpacity>
 
           {/* Header */}
           <View style={styles.header}>
-            <View style={styles.logoContainer}>
-              <Ionicons name="medical" size={32} color="#1ce881" />
+            <View style={[styles.logoContainer, { backgroundColor: theme.card }]}>
+              <Ionicons name="medical" size={32} color={theme.primary} />
             </View>
-            <Text style={styles.title}>Welcome to whiskr</Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.title, { color: theme.textPrimary }]}>Welcome to whiskr</Text>
+            <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
               Sign in to your veterinary clinical copilot
             </Text>
           </View>
@@ -213,7 +213,7 @@ export default function LoginScreen() {
               autoCapitalize="none"
               autoCorrect={false}
               error={errors.email}
-              leftIcon={<Ionicons name="mail-outline" size={20} color="#64748b" />}
+              leftIcon={<Ionicons name="mail-outline" size={20} color={theme.textSecondary} />}
             />
 
             <Input
@@ -223,14 +223,14 @@ export default function LoginScreen() {
               onChangeText={setPassword}
               isPassword
               error={errors.password}
-              leftIcon={<Ionicons name="lock-closed-outline" size={20} color="#64748b" />}
+              leftIcon={<Ionicons name="lock-closed-outline" size={20} color={theme.textSecondary} />}
             />
 
             <TouchableOpacity
               style={styles.forgotPassword}
               onPress={() => router.push('/(auth)/forgot-password')}
             >
-              <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+              <Text style={[styles.forgotPasswordText, { color: theme.primary }]}>Forgot password?</Text>
             </TouchableOpacity>
 
             <Button
@@ -242,19 +242,19 @@ export default function LoginScreen() {
 
             {/* Divider */}
             <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>Or continue with</Text>
-              <View style={styles.dividerLine} />
+              <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
+              <Text style={[styles.dividerText, { color: theme.textSecondary }]}>Or continue with</Text>
+              <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
             </View>
 
             {/* Google Login */}
             <TouchableOpacity
-              style={styles.googleButton}
+              style={[styles.googleButton, { backgroundColor: theme.card }]}
               onPress={handleGoogleLogin}
               disabled={isLoading}
             >
-              <Ionicons name="logo-google" size={20} color="#ffffff" />
-              <Text style={styles.googleButtonText}>Continue with Google</Text>
+              <Ionicons name="logo-google" size={20} color={theme.textPrimary} />
+              <Text style={[styles.googleButtonText, { color: theme.textPrimary }]}>Continue with Google</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
