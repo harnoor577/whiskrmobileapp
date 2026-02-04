@@ -194,6 +194,9 @@ export default function CaseSummaryScreen() {
   const [isGeneratingEducation, setIsGeneratingEducation] = useState(false);
   const [isGeneratingDischarge, setIsGeneratingDischarge] = useState(false);
   const [extractedMedications, setExtractedMedications] = useState<ExtractedMedication[]>([]);
+  
+  // Report type selection
+  const [selectedReportType, setSelectedReportType] = useState<'soap' | 'wellness' | 'procedure' | null>(null);
 
   useEffect(() => {
     if (consultId) {
