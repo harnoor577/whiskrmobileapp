@@ -17,6 +17,7 @@ import { useTheme } from '../../src/contexts/ThemeContext';
 
 export default function TabsLayout() {
   const { user, loading, initialized, clinicId } = useAuthStore();
+  const { theme } = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   
