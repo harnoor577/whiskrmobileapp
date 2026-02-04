@@ -397,6 +397,36 @@ export default function CaseSummaryScreen() {
     plan: consult.soap_p || '',
   };
 
+  // Check if SOAP notes exist
+  const hasSOAP = !!(consult.soap_s || consult.soap_o || consult.soap_a || consult.soap_p);
+
+  // Parse case_notes JSON for wellness and procedure data
+  let wellnessData: WellnessData | null = null;
+  let procedureData: ProcedureData | null = null;
+
+  if (consult.case_notes) {
+    try {
+      const parsed = JSON.parse(consult.case_notes);
+      if (parsed.wellness) wellnessData = parsed.wellness;
+      if (parsed.procedure) procedureData = parsed.procedure;
+    } catch {
+      // Not JSON, ignore
+    }
+  }
+
+  // Auto-select primary report type on load
+  useEffect(() => {
+    if (!selectedReportType) {
+      if (hasSOAP) {
+        setSelectedReportType('soap');
+      } else if (wellnessData) {
+        setSelectedReportType('wellness');
+      } else if (procedureData) {
+        setSelectedReportType('procedure');
+      }
+    }
+  }, [hasSOAP, wellnessData, procedureData, selectedReportType]);
+
   const educationSections = consult.client_education ? parseEducationSections(consult.client_education) : [];
   const dischargeSections = consult.discharge_summary ? parseDischargeSections(consult.discharge_summary) : [];
 
