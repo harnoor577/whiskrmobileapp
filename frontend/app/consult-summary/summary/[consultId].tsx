@@ -9,12 +9,14 @@ import {
   ActivityIndicator,
   Share,
   Platform,
+  Modal,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { supabase } from '../../../src/lib/supabase';
 import { format } from 'date-fns';
+import * as Clipboard from 'expo-clipboard';
 
 interface SOAPData {
   subjective: string;
@@ -32,6 +34,9 @@ interface ConsultData {
   soap_o?: string;
   soap_a?: string;
   soap_p?: string;
+  discharge_summary?: string;
+  client_education?: string;
+  original_input?: string;
   patient?: {
     id: string;
     name: string;
@@ -40,6 +45,12 @@ interface ConsultData {
     sex?: string;
     identifiers?: { patient_id?: string };
   };
+}
+
+interface ExtractedMedication {
+  name: string;
+  dosage?: string;
+  frequency?: string;
 }
 
 const SECTION_COLORS = {
@@ -56,6 +67,78 @@ const SECTION_LABELS = {
   plan: 'Plan',
 };
 
+// Extract medications from SOAP plan section
+function extractMedicationsFromConsult(consult: ConsultData): ExtractedMedication[] {
+  const medications: ExtractedMedication[] = [];
+  const planText = consult.soap_p || '';
+  
+  // Common medication patterns
+  const patterns = [
+    /(\w+(?:\s+\w+)?)\s+(\d+(?:\.\d+)?\s*(?:mg|ml|mcg|g|units?)(?:\/(?:kg|lb))?)\s*(?:PO|IV|IM|SC|SQ|topical)?\s*(?:q?\d+h?|(?:once|twice|three times)\s+(?:daily|a day)|BID|TID|QID|SID|EOD)?/gi,
+    /(?:prescribe|administer|give|start)\s+(\w+(?:\s+\w+)?)\s+(?:at\s+)?(\d+(?:\.\d+)?\s*(?:mg|ml|mcg|g|units?))/gi,
+  ];
+  
+  patterns.forEach(pattern => {
+    let match;
+    while ((match = pattern.exec(planText)) !== null) {
+      const name = match[1]?.trim();
+      if (name && name.length > 2 && !medications.find(m => m.name.toLowerCase() === name.toLowerCase())) {
+        medications.push({
+          name,
+          dosage: match[2]?.trim(),
+        });
+      }
+    }
+  });
+  
+  // Also look for common drug names
+  const commonDrugs = [
+    'Amoxicillin', 'Clavamox', 'Metronidazole', 'Carprofen', 'Meloxicam',
+    'Gabapentin', 'Prednisone', 'Prednisolone', 'Cerenia', 'Famotidine',
+    'Omeprazole', 'Sucralfate', 'Diphenhydramine', 'Apoquel', 'Cytopoint',
+    'Convenia', 'Baytril', 'Enrofloxacin', 'Doxycycline', 'Clindamycin',
+    'Tramadol', 'Buprenorphine', 'Trazodone', 'Fluoxetine', 'Rimadyl'
+  ];
+  
+  commonDrugs.forEach(drug => {
+    const regex = new RegExp(drug, 'gi');
+    if (planText.match(regex) && !medications.find(m => m.name.toLowerCase() === drug.toLowerCase())) {
+      medications.push({ name: drug });
+    }
+  });
+  
+  return medications.slice(0, 10); // Limit to 10 medications
+}
+
+// Parse client education sections
+function parseEducationSections(content: string) {
+  const sections: { title: string; content: string }[] = [];
+  
+  const patterns = [
+    { title: 'What Is This Condition?', pattern: /(?:1\.\s*)?WHAT IS THIS CONDITION\?[:\s]*\n([\s\S]*?)(?=(?:2\.\s*)?CAUSES|$)/i },
+    { title: 'Causes and Risk Factors', pattern: /(?:2\.\s*)?CAUSES AND RISK FACTORS[:\s]*\n([\s\S]*?)(?=(?:3\.\s*)?UNDERSTANDING|$)/i },
+    { title: 'Understanding the Treatment', pattern: /(?:3\.\s*)?UNDERSTANDING THE TREATMENT[:\s]*\n([\s\S]*?)(?=(?:4\.\s*)?WHAT TO EXPECT|$)/i },
+    { title: 'What to Expect During Recovery', pattern: /(?:4\.\s*)?WHAT TO EXPECT DURING RECOVERY[:\s]*\n([\s\S]*?)(?=(?:5\.\s*)?HOME CARE|$)/i },
+    { title: 'Home Care Tips', pattern: /(?:5\.\s*)?HOME CARE TIPS[:\s]*\n([\s\S]*?)(?=(?:6\.\s*)?PREVENTION|$)/i },
+    { title: 'Prevention and Long-Term Care', pattern: /(?:6\.\s*)?PREVENTION AND LONG-TERM CARE[:\s]*\n([\s\S]*?)(?=(?:7\.\s*)?WHEN TO CONTACT|$)/i },
+    { title: 'When to Contact Your Veterinarian', pattern: /(?:7\.\s*)?WHEN TO CONTACT YOUR VETERINARIAN[:\s]*\n([\s\S]*?)$/i },
+  ];
+  
+  for (const { title, pattern } of patterns) {
+    const match = content.match(pattern);
+    if (match && match[1]?.trim()) {
+      sections.push({ title, content: match[1].trim() });
+    }
+  }
+  
+  // If no sections found, return the whole content as one section
+  if (sections.length === 0 && content.trim()) {
+    sections.push({ title: 'Client Education', content: content.trim() });
+  }
+  
+  return sections;
+}
+
 export default function CaseSummaryScreen() {
   const router = useRouter();
   const { consultId } = useLocalSearchParams<{ consultId: string }>();
@@ -63,12 +146,64 @@ export default function CaseSummaryScreen() {
   
   const [consult, setConsult] = useState<ConsultData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Modal states
+  const [showEducationModal, setShowEducationModal] = useState(false);
+  const [showMedicineModal, setShowMedicineModal] = useState(false);
+  const [showRecordingModal, setShowRecordingModal] = useState(false);
+  
+  // Generation states
+  const [isGeneratingEducation, setIsGeneratingEducation] = useState(false);
+  const [extractedMedications, setExtractedMedications] = useState<ExtractedMedication[]>([]);
 
   useEffect(() => {
     if (consultId) {
       loadConsultData();
     }
   }, [consultId]);
+
+  // Extract medications when consult loads
+  useEffect(() => {
+    if (consult) {
+      const meds = extractMedicationsFromConsult(consult);
+      setExtractedMedications(meds);
+    }
+  }, [consult]);
+
+  // Auto-generate client education if needed
+  useEffect(() => {
+    const autoGenerateEducation = async () => {
+      if (!consultId || !consult) return;
+      if (consult.client_education) return;
+      if (isGeneratingEducation) return;
+
+      const hasSOAPNotes = consult.soap_s || consult.soap_o || consult.soap_a || consult.soap_p;
+      if (!hasSOAPNotes) return;
+
+      setIsGeneratingEducation(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('generate-client-education', {
+          body: { consultId },
+        });
+
+        if (error) {
+          console.error('Error generating client education:', error);
+          return;
+        }
+
+        if (data?.clientEducation) {
+          // Reload consult data
+          loadConsultData();
+        }
+      } catch (err) {
+        console.error('Error generating education:', err);
+      } finally {
+        setIsGeneratingEducation(false);
+      }
+    };
+
+    autoGenerateEducation();
+  }, [consultId, consult?.soap_s, consult?.soap_o, consult?.soap_a, consult?.soap_p, consult?.client_education]);
 
   const loadConsultData = async () => {
     if (!consultId) return;
@@ -86,6 +221,9 @@ export default function CaseSummaryScreen() {
           soap_o,
           soap_a,
           soap_p,
+          discharge_summary,
+          client_education,
+          original_input,
           patient:patients (
             id,
             name,
@@ -130,12 +268,16 @@ export default function CaseSummaryScreen() {
     }
   };
 
-  const handleEdit = () => {
-    router.push(`/consult-editor/editor/${consultId}` as any);
+  const handleCopyEducation = async () => {
+    if (!consult?.client_education) return;
+    await Clipboard.setStringAsync(consult.client_education);
+    Alert.alert('Copied', 'Client education copied to clipboard');
   };
 
-  const handleNewConsult = () => {
-    router.replace('/(tabs)/consults' as any);
+  const handleCopyMedication = async (med: ExtractedMedication) => {
+    const text = `${med.name}${med.dosage ? ` - ${med.dosage}` : ''}${med.frequency ? ` (${med.frequency})` : ''}`;
+    await Clipboard.setStringAsync(text);
+    Alert.alert('Copied', `${med.name} copied to clipboard`);
   };
 
   if (isLoading) {
@@ -170,8 +312,10 @@ export default function CaseSummaryScreen() {
     plan: consult.soap_p || '',
   };
 
+  const educationSections = consult.client_education ? parseEducationSections(consult.client_education) : [];
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -236,7 +380,19 @@ export default function CaseSummaryScreen() {
 
         {/* SOAP Sections */}
         <View style={styles.soapContainer}>
-          <Text style={styles.soapTitle}>SOAP Notes</Text>
+          <View style={styles.soapHeader}>
+            <View style={styles.soapTitleRow}>
+              <Ionicons name="document-text" size={20} color="#1ce881" />
+              <Text style={styles.soapTitle}>SOAP Notes</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.copyAllButton}
+              onPress={handleShare}
+            >
+              <Ionicons name="copy-outline" size={16} color="#64748b" />
+              <Text style={styles.copyAllText}>Copy All</Text>
+            </TouchableOpacity>
+          </View>
           
           {(Object.keys(soapData) as Array<keyof SOAPData>).map((section) => (
             <View key={section} style={styles.soapSection}>
@@ -245,6 +401,15 @@ export default function CaseSummaryScreen() {
                 <Text style={[styles.soapSectionTitle, { color: SECTION_COLORS[section] }]}>
                   {SECTION_LABELS[section]}
                 </Text>
+                <TouchableOpacity 
+                  style={styles.copySectionButton}
+                  onPress={async () => {
+                    await Clipboard.setStringAsync(soapData[section] || '');
+                    Alert.alert('Copied', `${SECTION_LABELS[section]} copied to clipboard`);
+                  }}
+                >
+                  <Ionicons name="copy-outline" size={14} color="#94a3b8" />
+                </TouchableOpacity>
               </View>
               <Text style={styles.soapSectionContent}>
                 {soapData[section] || 'No data recorded'}
@@ -254,10 +419,10 @@ export default function CaseSummaryScreen() {
         </View>
         
         {/* Bottom padding for navigation bar */}
-        <View style={{ height: 100 }} />
+        <View style={{ height: 120 }} />
       </ScrollView>
 
-      {/* Bottom Actions */}
+      {/* Bottom Navigation Bar */}
       <View style={[styles.bottomActions, { paddingBottom: insets.bottom > 0 ? insets.bottom : 16 }]}>
         <TouchableOpacity style={styles.bottomBarItem} onPress={() => router.push('/(tabs)' as any)}>
           <Ionicons name="home-outline" size={24} color="#ffffff" />
@@ -265,27 +430,217 @@ export default function CaseSummaryScreen() {
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.bottomBarItem} onPress={() => router.push('/(tabs)/patients' as any)}>
-          <Ionicons name="people-outline" size={24} color="#ffffff" />
+          <Ionicons name="paw-outline" size={24} color="#ffffff" />
           <Text style={styles.bottomBarLabel}>Patient</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.recordingButton} onPress={() => router.push('/(tabs)' as any)}>
+        <TouchableOpacity style={styles.recordingButton} onPress={() => setShowRecordingModal(true)}>
           <View style={styles.recordingButtonInner}>
             <Ionicons name="mic" size={28} color="#101235" />
           </View>
           <Text style={styles.recordingLabel}>Recording</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.bottomBarItem} onPress={() => Alert.alert('Education', 'Coming soon!')}>
-          <Ionicons name="book-outline" size={24} color="#ffffff" />
-          <Text style={styles.bottomBarLabel}>Education</Text>
+        <TouchableOpacity 
+          style={[styles.bottomBarItem, !consult.client_education && !isGeneratingEducation && styles.bottomBarItemDisabled]} 
+          onPress={() => consult.client_education && setShowEducationModal(true)}
+          disabled={!consult.client_education && !isGeneratingEducation}
+        >
+          {isGeneratingEducation ? (
+            <ActivityIndicator size="small" color="#1ce881" />
+          ) : (
+            <Ionicons name="book-outline" size={24} color={consult.client_education ? "#ffffff" : "#64748b"} />
+          )}
+          <Text style={[styles.bottomBarLabel, !consult.client_education && styles.bottomBarLabelDisabled]}>Education</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.bottomBarItem} onPress={() => Alert.alert('Medicine', 'Coming soon!')}>
-          <Ionicons name="medkit-outline" size={24} color="#ffffff" />
-          <Text style={styles.bottomBarLabel}>Medicine</Text>
+        <TouchableOpacity 
+          style={[styles.bottomBarItem, extractedMedications.length === 0 && styles.bottomBarItemDisabled]} 
+          onPress={() => extractedMedications.length > 0 && setShowMedicineModal(true)}
+          disabled={extractedMedications.length === 0}
+        >
+          <View style={styles.bottomBarIconContainer}>
+            <Ionicons name="medkit-outline" size={24} color={extractedMedications.length > 0 ? "#ffffff" : "#64748b"} />
+            {extractedMedications.length > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{extractedMedications.length}</Text>
+              </View>
+            )}
+          </View>
+          <Text style={[styles.bottomBarLabel, extractedMedications.length === 0 && styles.bottomBarLabelDisabled]}>Medicine</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Recording/Original Input Modal */}
+      <Modal
+        visible={showRecordingModal}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowRecordingModal(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1} 
+          onPress={() => setShowRecordingModal(false)}
+        >
+          <View style={styles.modalContent}>
+            <View style={styles.modalHandle} />
+            <View style={styles.modalHeader}>
+              <View style={styles.modalTitleRow}>
+                <Ionicons name="mic" size={24} color="#1ce881" />
+                <Text style={styles.modalTitle}>Recording / Original Input</Text>
+              </View>
+              <TouchableOpacity onPress={() => setShowRecordingModal(false)}>
+                <Ionicons name="close" size={24} color="#64748b" />
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView style={styles.modalScrollView}>
+              {consult.original_input ? (
+                <View style={styles.originalInputContainer}>
+                  <Text style={styles.originalInputText}>{consult.original_input}</Text>
+                  <TouchableOpacity 
+                    style={styles.copyButton}
+                    onPress={async () => {
+                      await Clipboard.setStringAsync(consult.original_input || '');
+                      Alert.alert('Copied', 'Original input copied to clipboard');
+                    }}
+                  >
+                    <Ionicons name="copy-outline" size={16} color="#1ce881" />
+                    <Text style={styles.copyButtonText}>Copy</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <Text style={styles.emptyStateText}>No original input recorded.</Text>
+              )}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Client Education Modal */}
+      <Modal
+        visible={showEducationModal}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowEducationModal(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1} 
+          onPress={() => setShowEducationModal(false)}
+        >
+          <View style={styles.modalContent}>
+            <View style={styles.modalHandle} />
+            <View style={styles.modalHeader}>
+              <View style={styles.modalTitleRow}>
+                <Ionicons name="book" size={24} color="#3b82f6" />
+                <Text style={styles.modalTitle}>Client Education</Text>
+              </View>
+              <View style={styles.modalHeaderActions}>
+                <TouchableOpacity style={styles.modalCopyAll} onPress={handleCopyEducation}>
+                  <Ionicons name="copy-outline" size={16} color="#3b82f6" />
+                  <Text style={styles.modalCopyAllText}>Copy All</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setShowEducationModal(false)}>
+                  <Ionicons name="close" size={24} color="#64748b" />
+                </TouchableOpacity>
+              </View>
+            </View>
+            
+            <ScrollView style={styles.modalScrollView}>
+              {educationSections.length > 0 ? (
+                educationSections.map((section, index) => (
+                  <View key={index} style={styles.educationSection}>
+                    <View style={styles.educationSectionHeader}>
+                      <Text style={styles.educationSectionTitle}>{section.title}</Text>
+                      <TouchableOpacity 
+                        onPress={async () => {
+                          await Clipboard.setStringAsync(section.content);
+                          Alert.alert('Copied', `${section.title} copied to clipboard`);
+                        }}
+                      >
+                        <Ionicons name="copy-outline" size={14} color="#94a3b8" />
+                      </TouchableOpacity>
+                    </View>
+                    <Text style={styles.educationSectionContent}>{section.content}</Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.emptyStateText}>No client education generated.</Text>
+              )}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Medicine Summary Modal */}
+      <Modal
+        visible={showMedicineModal}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowMedicineModal(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1} 
+          onPress={() => setShowMedicineModal(false)}
+        >
+          <View style={styles.modalContent}>
+            <View style={styles.modalHandle} />
+            <View style={styles.modalHeader}>
+              <View style={styles.modalTitleRow}>
+                <Ionicons name="medkit" size={24} color="#8b5cf6" />
+                <Text style={styles.modalTitle}>Medicine Summary</Text>
+                <View style={styles.medicationBadge}>
+                  <Text style={styles.medicationBadgeText}>{extractedMedications.length}</Text>
+                </View>
+              </View>
+              <TouchableOpacity onPress={() => setShowMedicineModal(false)}>
+                <Ionicons name="close" size={24} color="#64748b" />
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView style={styles.modalScrollView}>
+              {extractedMedications.length > 0 ? (
+                <View style={styles.medicationList}>
+                  <Text style={styles.medicationListSubtitle}>
+                    Medications identified in the treatment plan:
+                  </Text>
+                  {extractedMedications.map((med, index) => (
+                    <TouchableOpacity 
+                      key={index} 
+                      style={styles.medicationItem}
+                      onPress={() => handleCopyMedication(med)}
+                    >
+                      <View style={styles.medicationInfo}>
+                        <View style={styles.medicationIcon}>
+                          <Ionicons name="medical" size={20} color="#8b5cf6" />
+                        </View>
+                        <View style={styles.medicationDetails}>
+                          <Text style={styles.medicationName}>{med.name}</Text>
+                          {med.dosage && (
+                            <Text style={styles.medicationDosage}>{med.dosage}</Text>
+                          )}
+                          {med.frequency && (
+                            <Text style={styles.medicationFrequency}>{med.frequency}</Text>
+                          )}
+                        </View>
+                      </View>
+                      <Ionicons name="copy-outline" size={18} color="#94a3b8" />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : (
+                <View style={styles.emptyState}>
+                  <Ionicons name="medical-outline" size={48} color="#64748b" />
+                  <Text style={styles.emptyStateText}>No medications identified in this consultation.</Text>
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -404,7 +759,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#94a3b8',
     marginTop: 4,
-    fontFamily: 'monospace',
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
   },
   dateCard: {
     marginHorizontal: 16,
@@ -439,11 +794,35 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e2e8f0',
   },
+  soapHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  soapTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   soapTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#101235',
-    marginBottom: 16,
+  },
+  copyAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#f1f5f9',
+    borderRadius: 8,
+  },
+  copyAllText: {
+    fontSize: 12,
+    color: '#64748b',
+    fontWeight: '500',
   },
   soapSection: {
     marginBottom: 20,
@@ -462,6 +841,10 @@ const styles = StyleSheet.create({
   soapSectionTitle: {
     fontSize: 15,
     fontWeight: '600',
+    flex: 1,
+  },
+  copySectionButton: {
+    padding: 4,
   },
   soapSectionContent: {
     fontSize: 14,
@@ -484,10 +867,36 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     minWidth: 60,
   },
+  bottomBarItemDisabled: {
+    opacity: 0.5,
+  },
+  bottomBarIconContainer: {
+    position: 'relative',
+  },
   bottomBarLabel: {
-    fontSize: 11,
+    fontSize: 10,
     color: '#ffffff',
     marginTop: 4,
+  },
+  bottomBarLabelDisabled: {
+    color: '#64748b',
+  },
+  badge: {
+    position: 'absolute',
+    top: -6,
+    right: -10,
+    backgroundColor: '#1ce881',
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#101235',
   },
   recordingButton: {
     alignItems: 'center',
@@ -507,9 +916,198 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   recordingLabel: {
-    fontSize: 11,
+    fontSize: 10,
     color: '#1ce881',
     marginTop: 4,
     fontWeight: '500',
+  },
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#ffffff',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '80%',
+    minHeight: '50%',
+  },
+  modalHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#e2e8f0',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+  },
+  modalTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#101235',
+  },
+  modalHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  modalCopyAll: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: '#eff6ff',
+    borderRadius: 6,
+  },
+  modalCopyAllText: {
+    fontSize: 12,
+    color: '#3b82f6',
+    fontWeight: '500',
+  },
+  modalScrollView: {
+    flex: 1,
+    padding: 20,
+  },
+  // Original Input
+  originalInputContainer: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    padding: 16,
+  },
+  originalInputText: {
+    fontSize: 14,
+    color: '#101235',
+    lineHeight: 22,
+  },
+  copyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    alignSelf: 'flex-end',
+    marginTop: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: 'rgba(28, 232, 129, 0.1)',
+    borderRadius: 8,
+  },
+  copyButtonText: {
+    fontSize: 13,
+    color: '#1ce881',
+    fontWeight: '500',
+  },
+  // Education Sections
+  educationSection: {
+    marginBottom: 20,
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    padding: 16,
+  },
+  educationSectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  educationSectionTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#3b82f6',
+    flex: 1,
+  },
+  educationSectionContent: {
+    fontSize: 14,
+    color: '#101235',
+    lineHeight: 22,
+  },
+  // Medication List
+  medicationList: {
+    gap: 12,
+  },
+  medicationListSubtitle: {
+    fontSize: 13,
+    color: '#64748b',
+    marginBottom: 8,
+  },
+  medicationItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  medicationInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  medicationIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  medicationDetails: {
+    flex: 1,
+  },
+  medicationName: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#101235',
+  },
+  medicationDosage: {
+    fontSize: 13,
+    color: '#64748b',
+    marginTop: 2,
+  },
+  medicationFrequency: {
+    fontSize: 12,
+    color: '#94a3b8',
+    marginTop: 2,
+  },
+  medicationBadge: {
+    backgroundColor: '#8b5cf6',
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginLeft: 8,
+  },
+  medicationBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  // Empty State
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyStateText: {
+    fontSize: 14,
+    color: '#64748b',
+    textAlign: 'center',
+    marginTop: 12,
   },
 });
