@@ -1,0 +1,1194 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+/* Mofugu Font Face Declarations - Primary Brand Font */
+@font-face {
+  font-family: "Mofugu";
+  src:
+    url("/fonts/Mofugu.woff2") format("woff2"),
+    url("/fonts/Mofugu.woff") format("woff"),
+    url("/fonts/Mofugu.ttf") format("truetype");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* UnivaNova Font Face Declarations - Body & Subheadings */
+@font-face {
+  font-family: "UnivaNova";
+  src:
+    url("/fonts/UnivaNova-Regular.woff2") format("woff2"),
+    url("/fonts/UnivaNova-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "UnivaNova";
+  src:
+    url("/fonts/UnivaNova-Light.woff2") format("woff2"),
+    url("/fonts/UnivaNova-Light.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "UnivaNova";
+  src:
+    url("/fonts/UnivaNova-SemiBold.woff2") format("woff2"),
+    url("/fonts/UnivaNova-SemiBold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "UnivaNova";
+  src:
+    url("/fonts/UnivaNova-Bold.woff2") format("woff2"),
+    url("/fonts/UnivaNova-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "UnivaNova";
+  src:
+    url("/fonts/UnivaNova-Heavy.woff2") format("woff2"),
+    url("/fonts/UnivaNova-Heavy.woff") format("woff");
+  font-weight: 800 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Metzler Font Face Declarations - Bold Headings */
+@font-face {
+  font-family: "Metzler";
+  src:
+    url("/fonts/metzler-bold-webfont.woff2") format("woff2"),
+    url("/fonts/metzler-bold-webfont.woff") format("woff"),
+    url("/fonts/metzler-bold-webfont.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Avenir Font Face Declarations - Fallback */
+@font-face {
+  font-family: "Avenir";
+  src: url("/fonts/Avenir-Heavy.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Avenir";
+  src: url("/fonts/Avenir-Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    /* Safe Area Insets - Despia Native runtime automatically injects these values
+       The env() fallback ensures web browser compatibility when not in Despia */
+    --safe-area-top: env(safe-area-inset-top, 0px);
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-left: env(safe-area-inset-left, 0px);
+    --safe-area-right: env(safe-area-inset-right, 0px);
+
+    /* Bottom nav height for content padding - includes protruding center button */
+    --bottom-nav-height: 100px;
+
+    /* Whiskr Brand Colors */
+    --whiskr-mint: 160 100% 57%; /* #24ffc9 */
+    --whiskr-green: 148 85% 51%; /* #1ce881 */
+    --whiskr-dark: 234 55% 13%; /* #101235 */
+
+    /* Light Mode - Clean White/Gray with Green Accents */
+    --background: 210 20% 98%;
+    --foreground: 234 55% 13%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 234 55% 13%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 234 55% 13%;
+
+    /* Primary: whiskr green (#1ce881) */
+    --primary: 148 85% 51%;
+    --primary-foreground: 234 55% 13%;
+    --primary-hover: 148 85% 45%;
+
+    /* Secondary: Muted gray-blue */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 234 55% 13%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    /* Accent: whiskr green (#1ce881) */
+    --accent: 148 85% 51%;
+    --accent-foreground: 234 55% 13%;
+
+    /* Danger: Soft red */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 148 85% 51%;
+
+    --radius: 0.875rem;
+
+    /* Status Colors */
+    --success: 148 85% 51%;
+    --warning: 38 92% 50%;
+    --info: 199 89% 48%;
+
+    /* Gradient */
+    --gradient-primary: linear-gradient(135deg, hsl(148 85% 51%), hsl(160 100% 57%));
+    --gradient-subtle: linear-gradient(180deg, hsl(220 20% 98%), hsl(220 14% 96%));
+    --gradient-whiskr: linear-gradient(135deg, hsl(var(--whiskr-green)), hsl(var(--whiskr-mint)));
+    --gradient-hero: linear-gradient(135deg, hsl(148 85% 45%), hsl(160 85% 50%));
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 234 55% 13%;
+    --sidebar-primary: 148 85% 51%;
+    --sidebar-primary-foreground: 234 55% 13%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 234 55% 13%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 148 85% 51%;
+  }
+
+  .dark {
+    /* Dark Mode - Deep Navy Background (#0a0c1a) with Green Accents */
+    --background: 232 50% 5%; /* #0a0c1a darkest navy */
+    --foreground: 210 20% 98%; /* Light text */
+
+    --card: 234 55% 13%; /* #101235 navy for cards */
+    --card-foreground: 210 20% 98%;
+
+    --popover: 234 55% 13%;
+    --popover-foreground: 210 20% 98%;
+
+    /* Primary: whiskr green - brighter for dark mode */
+    --primary: 148 85% 55%;
+    --primary-foreground: 234 55% 13%;
+    --primary-hover: 148 85% 48%;
+
+    /* Secondary: Dark navy variant */
+    --secondary: 234 45% 17%; /* #1a1d3d elevated */
+    --secondary-foreground: 210 20% 98%;
+
+    --muted: 234 45% 17%;
+    --muted-foreground: 215 20% 65%; /* #94a3b8 */
+
+    /* Accent: whiskr green */
+    --accent: 148 85% 55%;
+    --accent-foreground: 234 55% 13%;
+
+    /* Danger */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 234 40% 22%; /* subtle navy border */
+    --input: 234 45% 17%;
+    --ring: 148 85% 55%;
+
+    --success: 148 85% 55%;
+    --warning: 38 92% 50%;
+    --info: 199 89% 48%;
+
+    /* Dark mode gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(234 55% 15%), hsl(234 45% 20%));
+
+    /* Sidebar dark */
+    --sidebar-background: 234 55% 13%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 148 85% 55%;
+    --sidebar-primary-foreground: 234 55% 13%;
+    --sidebar-accent: 234 45% 17%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 234 40% 22%;
+    --sidebar-ring: 148 85% 55%;
+
+    /* Dashboard-specific dark colors */
+    --dashboard-darkest: 232 50% 5%; /* #0a0c1a page background */
+    --dashboard-dark: 234 55% 13%; /* #101235 cards/sections */
+    --dashboard-elevated: 234 45% 17%; /* #1a1d3d hover states */
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: "UnivaNova", "Inter", "Avenir", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+  }
+
+  /* Body text uses UnivaNova for better readability */
+  p,
+  span,
+  li,
+  td,
+  th,
+  label,
+  input,
+  textarea,
+  button {
+    font-family: "UnivaNova", "Inter", "Avenir", system-ui, sans-serif;
+    letter-spacing: 0.01em;
+  }
+
+  /* Metzler Bold for all headings */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Metzler", "Inter", system-ui, sans-serif;
+    @apply tracking-tight;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .gradient-subtle {
+    background: var(--gradient-subtle);
+  }
+
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .shadow-elegant {
+    box-shadow: 0 10px 30px -10px hsl(var(--primary) / 0.3);
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out;
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes wave {
+    0% {
+      transform: rotate(0deg);
+    }
+    10% {
+      transform: rotate(14deg);
+    }
+    20% {
+      transform: rotate(-8deg);
+    }
+    30% {
+      transform: rotate(14deg);
+    }
+    40% {
+      transform: rotate(-4deg);
+    }
+    50% {
+      transform: rotate(10deg);
+    }
+    60% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
+  }
+
+  @keyframes sparkle {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.5;
+      transform: scale(0.95);
+    }
+  }
+
+  .animate-wave {
+    animation: wave 1s ease-in-out 1;
+    transform-origin: 70% 70%;
+  }
+
+  .animate-sparkle {
+    animation: sparkle 1.5s ease-in-out infinite;
+  }
+
+  /* Page transition - fast slide fade */
+  @keyframes pageEnter {
+    from {
+      opacity: 0;
+      transform: translateX(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .page-transition {
+    animation: pageEnter 0.15s ease-out;
+  }
+
+  /* Mascot loader animations */
+  @keyframes mascotBounceLeft {
+    0%,
+    100% {
+      transform: translateY(0) translateX(0);
+    }
+    50% {
+      transform: translateY(-16px) translateX(-6px);
+    }
+  }
+
+  @keyframes mascotBounceRight {
+    0%,
+    100% {
+      transform: translateY(0) translateX(0);
+    }
+    50% {
+      transform: translateY(-16px) translateX(6px);
+    }
+  }
+
+  @keyframes pawPulse {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 1;
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(300%);
+    }
+  }
+
+  @keyframes floatUp {
+    0% {
+      transform: translateY(0) scale(0.5);
+      opacity: 0;
+    }
+    30% {
+      opacity: 1;
+      transform: translateY(-10px) scale(1);
+    }
+    100% {
+      transform: translateY(-30px) scale(0.8);
+      opacity: 0;
+    }
+  }
+
+  @keyframes bounceBall {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-16px);
+    }
+  }
+
+  @keyframes pawTrail {
+    0%,
+    100% {
+      opacity: 0.3;
+      transform: scale(0.8);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+
+  .animate-mascot-bounce-left {
+    animation: mascotBounceLeft 1.2s ease-in-out infinite;
+  }
+
+  .animate-mascot-bounce-right {
+    animation: mascotBounceRight 1.2s ease-in-out infinite;
+    animation-delay: 0.2s;
+  }
+
+  .animate-paw-pulse {
+    animation: pawPulse 1.4s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+
+  .animate-float-up-1 {
+    animation: floatUp 2s ease-out infinite;
+  }
+
+  .animate-float-up-2 {
+    animation: floatUp 2s ease-out infinite;
+    animation-delay: 0.6s;
+  }
+
+  .animate-float-up-3 {
+    animation: floatUp 2s ease-out infinite;
+    animation-delay: 1.2s;
+  }
+
+  .animate-bounce-ball {
+    animation: bounceBall 0.8s ease-in-out infinite;
+  }
+
+  .animate-paw-trail-1 {
+    animation: pawTrail 1.5s ease-in-out infinite;
+  }
+
+  .animate-paw-trail-2 {
+    animation: pawTrail 1.5s ease-in-out infinite;
+    animation-delay: 0.3s;
+  }
+
+  .animate-paw-trail-3 {
+    animation: pawTrail 1.5s ease-in-out infinite;
+    animation-delay: 0.6s;
+  }
+
+  /* Mobile touch targets - minimum 44px per Apple HIG */
+  .btn-touch {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Safe area spacing utilities */
+  .safe-top {
+    padding-top: var(--safe-area-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: var(--safe-area-bottom);
+  }
+
+  /* Bottom nav container with safe area */
+  .mobile-bottom-nav {
+    padding-bottom: calc(var(--safe-area-bottom) + 8px);
+  }
+
+  /* Content area padding when bottom nav is visible */
+  .has-bottom-nav {
+    padding-bottom: calc(var(--bottom-nav-height) + var(--safe-area-bottom));
+  }
+
+  /* Floating elements that should sit above the mobile bottom nav */
+  .floating-above-nav {
+    bottom: calc(var(--bottom-nav-height) + var(--safe-area-bottom) + 1rem);
+  }
+
+  @media (min-width: 1024px) {
+    .floating-above-nav {
+      bottom: 1.5rem; /* Normal position on desktop */
+    }
+  }
+
+  /* Mobile-only visibility utilities for homepage */
+  .mobile-only {
+    display: block;
+  }
+
+  .hidden-mobile {
+    display: flex;
+  }
+
+  @media (min-width: 768px) {
+    .mobile-only {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .hidden-mobile {
+      display: none !important;
+    }
+  }
+
+  /* Whiskr gradient utility */
+  .gradient-whiskr {
+    background: var(--gradient-whiskr);
+  }
+
+  /* Whiskr brand text gradient */
+  .text-gradient-whiskr {
+    background: linear-gradient(135deg, hsl(var(--whiskr-green)), hsl(var(--whiskr-mint)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glass effect for dark mode cards */
+  .glass-card {
+    background: hsl(var(--card) / 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  .dark .glass-card {
+    background: hsl(234 45% 18% / 0.8);
+    border: 1px solid hsl(148 85% 55% / 0.1);
+  }
+
+  /* ========== Scroll-triggered animations ========== */
+  .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition:
+      opacity 0.6s ease-out,
+      transform 0.6s ease-out;
+  }
+
+  .animate-on-scroll.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .animate-on-scroll-left {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition:
+      opacity 0.6s ease-out,
+      transform 0.6s ease-out;
+  }
+
+  .animate-on-scroll-left.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .animate-on-scroll-right {
+    opacity: 0;
+    transform: translateX(30px);
+    transition:
+      opacity 0.6s ease-out,
+      transform 0.6s ease-out;
+  }
+
+  .animate-on-scroll-right.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .animate-on-scroll-scale {
+    opacity: 0;
+    transform: scale(0.95);
+    transition:
+      opacity 0.6s ease-out,
+      transform 0.6s ease-out;
+  }
+
+  .animate-on-scroll-scale.is-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Stagger children animations */
+  .stagger-children > * {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity 0.5s ease-out,
+      transform 0.5s ease-out;
+  }
+
+  .stagger-children.is-visible > *:nth-child(1) {
+    transition-delay: 0ms;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .stagger-children.is-visible > *:nth-child(2) {
+    transition-delay: 100ms;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .stagger-children.is-visible > *:nth-child(3) {
+    transition-delay: 200ms;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .stagger-children.is-visible > *:nth-child(4) {
+    transition-delay: 300ms;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .stagger-children.is-visible > *:nth-child(5) {
+    transition-delay: 400ms;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .stagger-children.is-visible > *:nth-child(6) {
+    transition-delay: 500ms;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Hero fade-in keyframe */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .hero-animate {
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+
+  .hero-animate-delay-1 {
+    animation: fadeInUp 0.8s ease-out 0.1s forwards;
+    opacity: 0;
+  }
+
+  .hero-animate-delay-2 {
+    animation: fadeInUp 0.8s ease-out 0.2s forwards;
+    opacity: 0;
+  }
+
+  .hero-animate-delay-3 {
+    animation: fadeInUp 0.8s ease-out 0.3s forwards;
+    opacity: 0;
+  }
+
+  .hero-animate-delay-4 {
+    animation: fadeInUp 0.8s ease-out 0.4s forwards;
+    opacity: 0;
+  }
+
+  /* Floating animation for decorative elements */
+  @keyframes floatSlow {
+    0%,
+    100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-15px) rotate(3deg);
+    }
+  }
+
+  @keyframes floatMedium {
+    0%,
+    100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-20px) rotate(-2deg);
+    }
+  }
+
+  .animate-float-slow {
+    animation: floatSlow 6s ease-in-out infinite;
+  }
+
+  .animate-float-medium {
+    animation: floatMedium 5s ease-in-out infinite;
+  }
+
+  /* Button hover glow effect */
+  .btn-glow {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-glow::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .btn-glow:hover::before {
+    left: 100%;
+  }
+
+  /* Subtle grid pattern for hero */
+  .hero-grid-pattern {
+    background-image:
+      linear-gradient(rgba(28, 232, 129, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(28, 232, 129, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* ==========================================
+     ATLAS AVATAR ANIMATIONS
+  ========================================== */
+
+  /* Glow animations */
+  @keyframes atlas-glow {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(1.1);
+    }
+  }
+
+  @keyframes atlas-glow-fast {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .animate-atlas-glow {
+    animation: atlas-glow 2s ease-in-out infinite;
+  }
+
+  .animate-atlas-glow-fast {
+    animation: atlas-glow-fast 1s ease-in-out infinite;
+  }
+
+  /* Orb animations */
+  @keyframes atlas-breath {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+    50% {
+      transform: scale(1.02);
+      opacity: 0.7;
+    }
+  }
+
+  @keyframes atlas-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes atlas-pulse-fast {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.03);
+    }
+  }
+
+  @keyframes atlas-pulse-slow {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.03);
+    }
+  }
+
+  @keyframes atlas-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-3px);
+    }
+    75% {
+      transform: translateX(3px);
+    }
+  }
+
+  .animate-atlas-breath {
+    animation: atlas-breath 4s ease-in-out infinite;
+  }
+
+  .animate-atlas-pulse {
+    animation: atlas-pulse 1.5s ease-in-out infinite;
+  }
+
+  .animate-atlas-pulse-fast {
+    animation: atlas-pulse-fast 0.8s ease-in-out infinite;
+  }
+
+  .animate-atlas-pulse-slow {
+    animation: atlas-pulse-slow 3s ease-in-out infinite;
+  }
+
+  .animate-atlas-shake {
+    animation: atlas-shake 0.5s ease-in-out infinite;
+  }
+
+  /* Ring animation */
+  @keyframes atlas-ring {
+    0% {
+      transform: scale(0.8);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(1.4);
+      opacity: 0;
+    }
+  }
+
+  .animate-atlas-ring {
+    animation: atlas-ring 1.5s ease-out infinite;
+  }
+
+  /* Pupil animations */
+  @keyframes atlas-pupil {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+  }
+
+  @keyframes atlas-pupil-fast {
+    0%,
+    100% {
+      transform: translate(-50%, -50%);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(0.95);
+    }
+  }
+
+  @keyframes atlas-pupil-process {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+  }
+
+  .animate-atlas-pupil {
+    animation: atlas-pupil 1.5s ease-in-out infinite;
+  }
+
+  .animate-atlas-pupil-fast {
+    animation: atlas-pupil-fast 0.8s ease-in-out infinite;
+  }
+
+  .animate-atlas-pupil-process {
+    animation: atlas-pupil-process 0.5s ease-in-out infinite;
+  }
+
+  /* Checkmark animation */
+  @keyframes atlas-checkmark {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.5);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+
+  @keyframes atlas-checkmark-draw {
+    0% {
+      stroke-dasharray: 50;
+      stroke-dashoffset: 50;
+    }
+    100% {
+      stroke-dasharray: 50;
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .animate-atlas-checkmark {
+    animation: atlas-checkmark 0.5s ease-out forwards;
+  }
+
+  .animate-atlas-checkmark-draw {
+    stroke-dasharray: 50;
+    stroke-dashoffset: 50;
+    animation: atlas-checkmark-draw 0.5s ease-out 0.2s forwards;
+  }
+
+  /* Exclamation animation */
+  @keyframes atlas-exclamation {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+  }
+
+  .animate-atlas-exclamation {
+    animation: atlas-exclamation 0.5s ease-in-out infinite;
+  }
+
+  /* Recording dot animation */
+  @keyframes atlas-recording-dot {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .animate-atlas-recording-dot {
+    animation: atlas-recording-dot 1s ease-in-out infinite;
+  }
+
+  /* Processing dots */
+  @keyframes atlas-dot {
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.5;
+    }
+    50% {
+      transform: translateY(-6px);
+      opacity: 1;
+    }
+  }
+
+  .animate-atlas-dot {
+    animation: atlas-dot 1.2s ease-in-out infinite;
+  }
+
+  /* Slow spin for processing */
+  .animate-spin-slow {
+    animation: spin 6s linear infinite;
+  }
+
+  /* ==========================================
+     ATLAS EYE FLOATING ANIMATIONS
+  ========================================== */
+
+  /* Eye float animation with slight collision effect */
+  @keyframes eyeFloat1 {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    25% {
+      transform: translate(10px, -15px);
+    }
+    50% {
+      transform: translate(-5px, 10px);
+    }
+    75% {
+      transform: translate(15px, 5px);
+    }
+  }
+
+  @keyframes eyeFloat2 {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    25% {
+      transform: translate(-15px, 10px);
+    }
+    50% {
+      transform: translate(10px, -5px);
+    }
+    75% {
+      transform: translate(-10px, -15px);
+    }
+  }
+
+  @keyframes eyeBounce {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  .eye-float-1 {
+    animation: eyeFloat1 20s ease-in-out infinite;
+  }
+
+  .eye-float-2 {
+    animation: eyeFloat2 25s ease-in-out infinite;
+  }
+
+  .eye-bounce {
+    animation: eyeBounce 2s ease-in-out infinite;
+  }
+}
+
+/* ==========================================
+   LEGAL PAGE CONTENT STYLES
+========================================== */
+
+.legal-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+}
+
+.legal-content h2:first-child {
+  margin-top: 0;
+}
+
+.legal-content h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.legal-content p {
+  color: #475569;
+  line-height: 1.75;
+  margin-bottom: 1rem;
+}
+
+.legal-content ul,
+.legal-content ol {
+  color: #475569;
+  margin-left: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.legal-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.75;
+}
+
+.legal-content a {
+  color: #1ce881;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.legal-content a:hover {
+  color: #0fd9a0;
+}
+
+.legal-content .company-info {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.legal-content .company-info strong {
+  color: #0f172a;
+  font-size: 1.125rem;
+}
+
+.legal-content .alert-box {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.legal-content .alert-box strong {
+  color: #991b1b;
+}
+
+/* Social Icon Links - Footer */
+.social-icon-link {
+  background: rgba(255, 255, 255, 0.05);
+  color: #64748b;
+}
+
+.social-icon-link:hover {
+  background: #1ce881;
+  color: #101235;
+}
