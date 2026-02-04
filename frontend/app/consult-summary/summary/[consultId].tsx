@@ -365,6 +365,36 @@ export default function CaseSummaryScreen() {
     Alert.alert('Copied', 'Discharge summary copied to clipboard');
   };
 
+  // Parse case_notes JSON for wellness and procedure data (must be before useEffect)
+  let wellnessData: WellnessData | null = null;
+  let procedureData: ProcedureData | null = null;
+
+  if (consult?.case_notes) {
+    try {
+      const parsed = JSON.parse(consult.case_notes);
+      if (parsed.wellness) wellnessData = parsed.wellness;
+      if (parsed.procedure) procedureData = parsed.procedure;
+    } catch {
+      // Not JSON, ignore
+    }
+  }
+
+  // Check if SOAP notes exist
+  const hasSOAP = !!(consult?.soap_s || consult?.soap_o || consult?.soap_a || consult?.soap_p);
+
+  // Auto-select primary report type on load (must be before conditional returns)
+  useEffect(() => {
+    if (!selectedReportType && consult) {
+      if (hasSOAP) {
+        setSelectedReportType('soap');
+      } else if (wellnessData) {
+        setSelectedReportType('wellness');
+      } else if (procedureData) {
+        setSelectedReportType('procedure');
+      }
+    }
+  }, [consult, hasSOAP, selectedReportType]);
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -396,36 +426,6 @@ export default function CaseSummaryScreen() {
     assessment: consult.soap_a || '',
     plan: consult.soap_p || '',
   };
-
-  // Check if SOAP notes exist
-  const hasSOAP = !!(consult.soap_s || consult.soap_o || consult.soap_a || consult.soap_p);
-
-  // Parse case_notes JSON for wellness and procedure data
-  let wellnessData: WellnessData | null = null;
-  let procedureData: ProcedureData | null = null;
-
-  if (consult.case_notes) {
-    try {
-      const parsed = JSON.parse(consult.case_notes);
-      if (parsed.wellness) wellnessData = parsed.wellness;
-      if (parsed.procedure) procedureData = parsed.procedure;
-    } catch {
-      // Not JSON, ignore
-    }
-  }
-
-  // Auto-select primary report type on load
-  useEffect(() => {
-    if (!selectedReportType) {
-      if (hasSOAP) {
-        setSelectedReportType('soap');
-      } else if (wellnessData) {
-        setSelectedReportType('wellness');
-      } else if (procedureData) {
-        setSelectedReportType('procedure');
-      }
-    }
-  }, [hasSOAP, wellnessData, procedureData, selectedReportType]);
 
   const educationSections = consult.client_education ? parseEducationSections(consult.client_education) : [];
   const dischargeSections = consult.discharge_summary ? parseDischargeSections(consult.discharge_summary) : [];
