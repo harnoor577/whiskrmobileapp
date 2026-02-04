@@ -15,9 +15,14 @@ import {
   Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { supabase } from '../../lib/supabase';
 import { AtlasEye } from './AtlasEye';
 import * as Clipboard from 'expo-clipboard';
+import Constants from 'expo-constants';
+
+// Get backend URL from environment
+const BACKEND_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || 
+                    process.env.EXPO_PUBLIC_BACKEND_URL || 
+                    '';
 
 interface MinimizableAtlasChatProps {
   transcription: string | null;
@@ -47,6 +52,35 @@ interface DifferentialItem {
 }
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// API call helper function
+const callAnalyzeRecording = async (params: {
+  transcription?: string | null;
+  patientInfo?: { patientId: string; name: string; species: string } | null;
+  consultId?: string;
+  followUpQuestion?: string;
+  previousMessages?: Array<{ role: string; content: string }>;
+}) => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/analyze-recording`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `API error: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('API call error:', error);
+    throw error;
+  }
+};
 
 export const MinimizableAtlasChat: React.FC<MinimizableAtlasChatProps> = ({
   transcription,
