@@ -1069,6 +1069,36 @@ export default function CaseSummaryScreen() {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      {/* Atlas Floating Button */}
+      <TouchableOpacity 
+        style={styles.atlasFloatingButton}
+        onPress={() => setShowAtlasChat(true)}
+      >
+        <View style={styles.atlasButtonInner}>
+          <AtlasEye size="sm" blink wander glowIntensity="medium" />
+        </View>
+        {atlasMessageCount > 0 && (
+          <View style={styles.atlasMessageBadge}>
+            <Text style={styles.atlasMessageBadgeText}>{atlasMessageCount}</Text>
+          </View>
+        )}
+      </TouchableOpacity>
+
+      {/* Atlas Chat Modal */}
+      {showAtlasChat && (
+        <MinimizableAtlasChat
+          transcription={consult.original_input}
+          patientInfo={consult.patient ? {
+            patientId: consult.patient.id,
+            name: consult.patient.name,
+            species: consult.patient.species,
+          } : null}
+          consultId={consultId || ''}
+          readOnly={true}
+          onMessageCountChange={setAtlasMessageCount}
+        />
+      )}
     </SafeAreaView>
   );
 }
