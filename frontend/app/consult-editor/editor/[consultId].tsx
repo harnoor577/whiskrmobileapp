@@ -91,6 +91,8 @@ export default function SOAPEditorScreen() {
   const [isUploading, setIsUploading] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showAtlasChat, setShowAtlasChat] = useState(false);
+  const [atlasMessageCount, setAtlasMessageCount] = useState(0);
 
   useEffect(() => {
     if (consultId) {
