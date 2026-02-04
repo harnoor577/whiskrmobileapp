@@ -9,6 +9,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -30,25 +31,28 @@ export function Input({
 }: InputProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const { theme } = useTheme();
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label && <Text style={[styles.label, { color: theme.textPrimary }]}>{label}</Text>}
       <View
         style={[
           styles.inputContainer,
-          isFocused && styles.inputContainerFocused,
-          error && styles.inputContainerError,
+          { backgroundColor: theme.card, borderColor: theme.border },
+          isFocused && { borderColor: theme.primary, borderWidth: 2 },
+          error && { borderColor: theme.destructive },
         ]}
       >
         {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
         <TextInput
           style={[
             styles.input,
+            { color: theme.textPrimary },
             leftIcon && styles.inputWithLeftIcon,
             (rightIcon || isPassword) && styles.inputWithRightIcon,
           ]}
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor={theme.textTertiary}
           secureTextEntry={isPassword && !showPassword}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
@@ -62,7 +66,7 @@ export function Input({
             <Ionicons
               name={showPassword ? 'eye-off-outline' : 'eye-outline'}
               size={20}
-              color="#64748b"
+              color={theme.textSecondary}
             />
           </TouchableOpacity>
         )}
@@ -70,7 +74,7 @@ export function Input({
           <View style={styles.iconRight}>{rightIcon}</View>
         )}
       </View>
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && <Text style={[styles.errorText, { color: theme.destructive }]}>{error}</Text>}
     </View>
   );
 }
@@ -82,31 +86,20 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#101235',
     marginBottom: 8,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
     borderRadius: 12,
     overflow: 'hidden',
-  },
-  inputContainerFocused: {
-    borderColor: '#1ce881',
-    borderWidth: 2,
-  },
-  inputContainerError: {
-    borderColor: '#ef4444',
   },
   input: {
     flex: 1,
     paddingVertical: 14,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: '#101235',
   },
   inputWithLeftIcon: {
     paddingLeft: 8,
@@ -122,7 +115,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 12,
-    color: '#ef4444',
     marginTop: 4,
   },
 });
