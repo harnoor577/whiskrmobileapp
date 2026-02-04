@@ -1,18 +1,23 @@
-diff --git a/remix-of-whiskr-supabase-main/src/pages/Login.tsx b/remix-of-whiskr-supabase-main/src/pages/Login.tsx
-index 36c8e78..cfe165a 100644
---- a/remix-of-whiskr-supabase-main/src/pages/Login.tsx
-+++ b/remix-of-whiskr-supabase-main/src/pages/Login.tsx
-@@ -624,12 +624,7 @@ export default function Login() {
-                 Continue with Google
-               </Button>
- 
--              <div className="text-center text-sm text-[#64748b]">
--                Don't have an account?{" "}
--                <Link to="/signup" className="text-[#1ce881] hover:text-[#0d9488] hover:underline">
--                  Sign up
--                </Link>
--              </div>
-+              {/* Sign Up Link - Removed */}
-             </form>
-           </CardContent>
-         </Card>
+diff --git a/model.patch b/model.patch
+index 787928c..e69de29 100644
+--- a/model.patch
++++ b/model.patch
+@@ -1,18 +0,0 @@
+-diff --git a/remix-of-whiskr-supabase-main/src/pages/Login.tsx b/remix-of-whiskr-supabase-main/src/pages/Login.tsx
+-index 36c8e78..cfe165a 100644
+---- a/remix-of-whiskr-supabase-main/src/pages/Login.tsx
+-+++ b/remix-of-whiskr-supabase-main/src/pages/Login.tsx
+-@@ -624,12 +624,7 @@ export default function Login() {
+-                 Continue with Google
+-               </Button>
+- 
+--              <div className="text-center text-sm text-[#64748b]">
+--                Don't have an account?{" "}
+--                <Link to="/signup" className="text-[#1ce881] hover:text-[#0d9488] hover:underline">
+--                  Sign up
+--                </Link>
+--              </div>
+-+              {/* Sign Up Link - Removed */}
+-             </form>
+-           </CardContent>
+-         </Card>
