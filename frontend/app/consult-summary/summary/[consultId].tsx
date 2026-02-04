@@ -383,6 +383,7 @@ export default function CaseSummaryScreen() {
   };
 
   const educationSections = consult.client_education ? parseEducationSections(consult.client_education) : [];
+  const dischargeSections = consult.discharge_summary ? parseDischargeSections(consult.discharge_summary) : [];
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
