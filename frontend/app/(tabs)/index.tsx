@@ -313,13 +313,11 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafbfc',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fafbfc',
   },
   scrollView: {
     flex: 1,
@@ -327,8 +325,25 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 16,
   },
+  themeToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+  },
+  themeToggleLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  themeToggleText: {
+    fontSize: 15,
+    fontWeight: '500',
+  },
   heroBanner: {
-    backgroundColor: '#101235',
     borderRadius: 20,
     padding: 20,
     marginBottom: 16,
@@ -343,7 +358,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 3,
-    backgroundColor: '#1ce881',
   },
   heroContent: {
     flex: 1,
@@ -356,27 +370,22 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
   },
   userName: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#ffffff',
     marginBottom: 4,
   },
   heroSubtext: {
     fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.6)',
   },
   heroHighlight: {
     fontWeight: '700',
-    color: '#1ce881',
   },
   heroIcon: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: 'rgba(28, 232, 129, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -387,12 +396,10 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 14,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
   },
   statIconBg: {
     width: 40,
@@ -405,11 +412,9 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#101235',
   },
   statLabel: {
     fontSize: 11,
-    color: '#64748b',
     marginTop: 2,
   },
   section: {
@@ -424,31 +429,24 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#101235',
   },
   viewAllText: {
     fontSize: 14,
-    color: '#1ce881',
     fontWeight: '600',
   },
   emptyCard: {
-    backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 32,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
   },
   emptyText: {
     fontSize: 16,
-    color: '#64748b',
     marginTop: 12,
   },
   patientsList: {
-    backgroundColor: '#ffffff',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
     overflow: 'hidden',
   },
   patientCard: {
@@ -456,7 +454,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
   },
   patientCardLast: {
     borderBottomWidth: 0,
@@ -475,11 +472,9 @@ const styles = StyleSheet.create({
   patientName: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#101235',
   },
   patientBreed: {
     fontSize: 13,
-    color: '#64748b',
     marginTop: 1,
   },
 });
