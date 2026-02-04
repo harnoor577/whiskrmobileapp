@@ -18,6 +18,7 @@ import { Input } from '../../src/components/ui/Input';
 import { supabase } from '../../src/lib/supabase';
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
+import { useTheme } from '../../src/contexts/ThemeContext';
 
 // Required for proper OAuth redirect handling
 WebBrowser.maybeCompleteAuthSession();
@@ -27,6 +28,7 @@ const GOOGLE_CLIENT_ID = '848927680049-ghq7ef0uhh3e2tmd8t2sj5lngk82f54q.apps.goo
 export default function LoginScreen() {
   const router = useRouter();
   const { signIn, loading } = useAuthStore();
+  const { theme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
