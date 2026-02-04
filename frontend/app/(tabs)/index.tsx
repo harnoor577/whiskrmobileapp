@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -15,6 +16,7 @@ import { useAuthStore } from '../../src/store/authStore';
 import { supabase } from '../../src/lib/supabase';
 import { Button } from '../../src/components/ui/Button';
 import { getSpeciesColor } from '../../src/utils/colors';
+import { useTheme } from '../../src/contexts/ThemeContext';
 
 interface DashboardMetrics {
   totalPatients: number;
