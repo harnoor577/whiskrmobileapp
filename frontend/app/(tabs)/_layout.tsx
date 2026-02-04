@@ -13,6 +13,7 @@ import { ReportGenerationOverlay } from '../../src/components/consult/ReportGene
 import { supabase } from '../../src/lib/supabase';
 import * as FileSystem from 'expo-file-system';
 import { Alert } from 'react-native';
+import { useTheme } from '../../src/contexts/ThemeContext';
 
 export default function TabsLayout() {
   const { user, loading, initialized, clinicId } = useAuthStore();
