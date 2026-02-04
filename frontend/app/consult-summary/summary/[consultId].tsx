@@ -979,6 +979,48 @@ const styles = StyleSheet.create({
     color: '#101235',
     fontWeight: '500',
   },
+  // Action Buttons Row
+  actionButtonsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginHorizontal: 16,
+    marginBottom: 16,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  actionButtonDisabled: {
+    opacity: 0.5,
+  },
+  actionButtonText: {
+    fontSize: 13,
+    color: '#101235',
+    fontWeight: '500',
+  },
+  actionButtonTextDisabled: {
+    color: '#94a3b8',
+  },
+  actionButtonBadge: {
+    backgroundColor: '#0ea5e9',
+    borderRadius: 8,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    marginLeft: 2,
+  },
+  actionButtonBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
   soapContainer: {
     marginHorizontal: 16,
     marginBottom: 16,
