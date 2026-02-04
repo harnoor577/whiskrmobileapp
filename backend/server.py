@@ -139,8 +139,8 @@ async def call_gemini_api(prompt: str, system_prompt: str) -> str:
     if not api_key:
         raise HTTPException(status_code=500, detail="Gemini API key not configured")
 
-    # Use gemini-1.5-flash which is more widely available
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    # Use gemini-pro which is stable and available
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={api_key}"
     
     payload = {
         "contents": [
