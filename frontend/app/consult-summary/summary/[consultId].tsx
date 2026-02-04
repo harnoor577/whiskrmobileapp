@@ -1251,6 +1251,88 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#ffffff',
   },
+  // Report Type Selector
+  reportTypeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    flexWrap: 'wrap',
+  },
+  reportTypeLabel: {
+    fontSize: 14,
+    color: '#64748b',
+    fontWeight: '500',
+    marginRight: 4,
+  },
+  reportTypeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  reportTypeButtonActive: {
+    backgroundColor: '#3b82f6',
+    borderColor: '#3b82f6',
+  },
+  reportTypeButtonActiveGreen: {
+    backgroundColor: '#22c55e',
+    borderColor: '#22c55e',
+  },
+  reportTypeButtonActivePurple: {
+    backgroundColor: '#8b5cf6',
+    borderColor: '#8b5cf6',
+  },
+  reportTypeButtonDisabled: {
+    opacity: 0.4,
+  },
+  reportTypeButtonText: {
+    fontSize: 13,
+    color: '#101235',
+    fontWeight: '500',
+  },
+  reportTypeButtonTextActive: {
+    color: '#ffffff',
+  },
+  reportTypeButtonTextDisabled: {
+    color: '#94a3b8',
+  },
+  // Report Container
+  reportContainer: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+    padding: 16,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    borderLeftWidth: 4,
+    borderLeftColor: '#3b82f6',
+  },
+  emptyReportContainer: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+    padding: 40,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyReportText: {
+    fontSize: 14,
+    color: '#64748b',
+    textAlign: 'center',
+    marginTop: 12,
+  },
   soapContainer: {
     marginHorizontal: 16,
     marginBottom: 16,
