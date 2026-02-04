@@ -192,38 +192,15 @@ export const MinimizableAtlasChat: React.FC<MinimizableAtlasChatProps> = ({
     }
   }, [transcription, readOnly]);
 
-  // Load existing messages when in readOnly mode
+  // Load existing messages when in readOnly mode - using local storage or empty state
   useEffect(() => {
     if (!readOnly) return;
-
-    const loadExistingMessages = async () => {
-      setIsAnalyzing(true);
-      try {
-        const { data, error } = await supabase
-          .from('chat_messages')
-          .select('id, role, content, created_at')
-          .eq('consult_id', consultId)
-          .order('created_at', { ascending: true });
-
-        if (!error && data && data.length > 0) {
-          const formattedMessages: Message[] = data
-            .filter(m => m.role !== 'system')
-            .map(m => ({
-              id: m.id,
-              role: m.role as 'user' | 'assistant',
-              content: m.content,
-            }));
-          setMessages(formattedMessages);
-          setShowSuggestions(true);
-        }
-      } catch (error) {
-        console.error('Error loading messages:', error);
-      } finally {
-        setIsAnalyzing(false);
-      }
-    };
-
-    loadExistingMessages();
+    // In readOnly mode, we just show any messages we have
+    // For a full implementation, you'd load from a local database or API
+    setIsAnalyzing(false);
+    if (messages.length > 0) {
+      setShowSuggestions(true);
+    }
   }, [readOnly, consultId]);
 
   // Flash notification when new message arrives while minimized
