@@ -17,6 +17,8 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { supabase } from '../../../src/lib/supabase';
 import { format } from 'date-fns';
 import * as Clipboard from 'expo-clipboard';
+import { MinimizableAtlasChat } from '../../../src/components/atlas/MinimizableAtlasChat';
+import { AtlasEye } from '../../../src/components/atlas/AtlasEye';
 
 interface SOAPData {
   subjective: string;
