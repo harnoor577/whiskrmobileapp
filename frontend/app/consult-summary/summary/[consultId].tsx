@@ -59,6 +59,7 @@ const SECTION_LABELS = {
 export default function CaseSummaryScreen() {
   const router = useRouter();
   const { consultId } = useLocalSearchParams<{ consultId: string }>();
+  const insets = useSafeAreaInsets();
   
   const [consult, setConsult] = useState<ConsultData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
