@@ -79,19 +79,21 @@ function FeatureItem({
   icon,
   title,
   description,
+  theme,
 }: {
   icon: string;
   title: string;
   description: string;
+  theme: any;
 }) {
   return (
-    <View style={styles.featureItem}>
-      <View style={styles.featureIcon}>
-        <Ionicons name={icon as any} size={24} color="#1ce881" />
+    <View style={[styles.featureItem, { backgroundColor: theme.card, borderColor: theme.border }]}>
+      <View style={[styles.featureIcon, { backgroundColor: `${theme.primary}15` }]}>
+        <Ionicons name={icon as any} size={24} color={theme.primary} />
       </View>
       <View style={styles.featureText}>
-        <Text style={styles.featureTitle}>{title}</Text>
-        <Text style={styles.featureDescription}>{description}</Text>
+        <Text style={[styles.featureTitle, { color: theme.textPrimary }]}>{title}</Text>
+        <Text style={[styles.featureDescription, { color: theme.textSecondary }]}>{description}</Text>
       </View>
     </View>
   );
