@@ -163,17 +163,13 @@ export const MinimizableAtlasChat: React.FC<MinimizableAtlasChatProps> = ({
 
     setDifferentialsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('analyze-recording', {
-        body: {
-          transcription,
-          patientInfo,
-          consultId,
-          followUpQuestion: 'Based on this case, please provide your top 3-5 differential diagnoses. Format each as a numbered list (1. 2. 3. etc.) with just the condition name on each line.',
-          previousMessages: messages,
-        },
+      const data = await callAnalyzeRecording({
+        transcription,
+        patientInfo,
+        consultId,
+        followUpQuestion: 'Based on this case, please provide your top 3-5 differential diagnoses. Format each as a numbered list (1. 2. 3. etc.) with just the condition name on each line.',
+        previousMessages: messages.map(m => ({ role: m.role, content: m.content })),
       });
-
-      if (error) throw error;
 
       if (data?.analysis) {
         const parsed = parseDifferentials(data.analysis);
