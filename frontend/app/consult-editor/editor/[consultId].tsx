@@ -935,6 +935,35 @@ export default function SOAPEditorScreen() {
               </View>
             </TouchableOpacity>
           </Modal>
+
+          {/* Atlas Floating Button */}
+          <TouchableOpacity 
+            style={styles.atlasFloatingButton}
+            onPress={() => setShowAtlasChat(true)}
+          >
+            <View style={styles.atlasButtonInner}>
+              <AtlasEye size="sm" blink wander glowIntensity="medium" />
+            </View>
+            {atlasMessageCount > 0 && (
+              <View style={styles.atlasMessageBadge}>
+                <Text style={styles.atlasMessageBadgeText}>{atlasMessageCount}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+
+          {/* Atlas Chat Modal */}
+          {showAtlasChat && (
+            <MinimizableAtlasChat
+              transcription={originalInput}
+              patientInfo={patientInfo ? {
+                patientId: patientInfo.id,
+                name: patientInfo.name,
+                species: patientInfo.species,
+              } : null}
+              consultId={consultId || ''}
+              onMessageCountChange={setAtlasMessageCount}
+            />
+          )}
         </KeyboardAvoidingView>
       </SafeAreaView>
     </>
