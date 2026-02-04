@@ -1346,4 +1346,30 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 12,
   },
+  // Discharge Sections
+  dischargeSection: {
+    marginBottom: 20,
+    backgroundColor: '#f0f9ff',
+    borderRadius: 12,
+    padding: 16,
+    borderLeftWidth: 3,
+    borderLeftColor: '#0ea5e9',
+  },
+  dischargeSectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  dischargeSectionTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#0ea5e9',
+    flex: 1,
+  },
+  dischargeSectionContent: {
+    fontSize: 14,
+    color: '#101235',
+    lineHeight: 22,
+  },
 });
