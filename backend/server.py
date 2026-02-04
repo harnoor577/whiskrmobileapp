@@ -6,10 +6,10 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 import uuid
 from datetime import datetime
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+import httpx
 
 
 ROOT_DIR = Path(__file__).parent
@@ -25,6 +25,13 @@ app = FastAPI()
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
 # Define Models
@@ -125,16 +132,56 @@ Provide a comprehensive treatment plan including:
 5. Follow-up Schedule
 6. Warning Signs to watch for"""
 
+
+async def call_gemini_api(prompt: str, system_prompt: str) -> str:
+    """Call Google Gemini API directly"""
+    api_key = os.getenv('GEMINI_API_KEY')
+    if not api_key:
+        raise HTTPException(status_code=500, detail="Gemini API key not configured")
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
+    
+    payload = {
+        "contents": [
+            {
+                "role": "user",
+                "parts": [{"text": f"{system_prompt}\n\n{prompt}"}]
+            }
+        ],
+        "generationConfig": {
+            "temperature": 0.7,
+            "topK": 40,
+            "topP": 0.95,
+            "maxOutputTokens": 2048,
+        }
+    }
+
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        response = await client.post(url, json=payload)
+        
+        if response.status_code != 200:
+            logger.error(f"Gemini API error: {response.status_code} - {response.text}")
+            raise HTTPException(status_code=500, detail=f"AI API error: {response.status_code}")
+        
+        data = response.json()
+        
+        # Extract text from response
+        if "candidates" in data and len(data["candidates"]) > 0:
+            candidate = data["candidates"][0]
+            if "content" in candidate and "parts" in candidate["content"]:
+                parts = candidate["content"]["parts"]
+                if len(parts) > 0 and "text" in parts[0]:
+                    return parts[0]["text"]
+        
+        raise HTTPException(status_code=500, detail="No response generated from AI")
+
+
 @api_router.post("/analyze-recording", response_model=AnalyzeRecordingResponse)
 async def analyze_recording(request: AnalyzeRecordingRequest):
     """
-    Analyze a veterinary case recording using AI.
+    Analyze a veterinary case recording using Google Gemini AI.
     """
     try:
-        api_key = os.getenv('EMERGENT_LLM_KEY')
-        if not api_key:
-            raise HTTPException(status_code=500, detail="AI service not configured")
-
         # Build patient context
         patient_context = ""
         if request.patientInfo:
@@ -147,16 +194,6 @@ Patient Information:
 
         # Build system message with patient context
         system_message = ATLAS_SYSTEM_PROMPT + patient_context
-
-        # Create unique session ID for this conversation
-        session_id = f"atlas-{request.consultId or uuid.uuid4()}"
-
-        # Initialize the chat
-        chat = LlmChat(
-            api_key=api_key,
-            session_id=session_id,
-            system_message=system_message
-        ).with_model("gemini", "gemini-2.5-flash")
 
         # Build the user message
         if not request.followUpQuestion:
@@ -175,8 +212,7 @@ Provide a helpful case summary based on the recording. Do not include differenti
             
             user_content = f"{context_snippet}{request.followUpQuestion}"
 
-        # Add previous messages for context (simulate conversation history)
-        # Note: The library doesn't maintain history automatically, so we include context in the prompt
+        # Add previous messages for context
         if request.previousMessages and len(request.previousMessages) > 0:
             history_context = "\n\nPrevious conversation:\n"
             for msg in request.previousMessages[-4:]:  # Last 4 messages for context
@@ -184,12 +220,10 @@ Provide a helpful case summary based on the recording. Do not include differenti
                 history_context += f"{role_label}: {msg.content[:200]}{'...' if len(msg.content) > 200 else ''}\n"
             user_content = history_context + "\n\nCurrent question:\n" + user_content
 
-        # Create and send the message
-        user_message = UserMessage(text=user_content)
-        
         logger.info(f"[analyze-recording] Sending request for consult: {request.consultId}")
         
-        response = await chat.send_message(user_message)
+        # Call Gemini API
+        response = await call_gemini_api(user_content, system_message)
         
         if not response:
             raise HTTPException(status_code=500, detail="No analysis generated")
@@ -214,13 +248,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
