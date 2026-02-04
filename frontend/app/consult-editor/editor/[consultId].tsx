@@ -339,47 +339,31 @@ export default function SOAPEditorScreen() {
   const handleFinalize = async () => {
     if (!consultId) return;
 
-    Alert.alert(
-      'Finalize Consultation',
-      'This will save and finalize the SOAP notes. You can still edit them later.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Finalize',
-          onPress: async () => {
-            setIsSaving(true);
-            try {
-              const { error } = await supabase
-                .from('consults')
-                .update({
-                  soap_s: soapData.subjective,
-                  soap_o: soapData.objective,
-                  soap_a: soapData.assessment,
-                  soap_p: soapData.plan,
-                  status: 'finalized',
-                  visit_type: currentReportType,
-                  finalized_at: new Date().toISOString(),
-                })
-                .eq('id', consultId);
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('consults')
+        .update({
+          soap_s: soapData.subjective,
+          soap_o: soapData.objective,
+          soap_a: soapData.assessment,
+          soap_p: soapData.plan,
+          status: 'finalized',
+          visit_type: currentReportType,
+          finalized_at: new Date().toISOString(),
+        })
+        .eq('id', consultId);
 
-              if (error) throw error;
+      if (error) throw error;
 
-              Alert.alert('Success', 'SOAP notes saved and finalized.', [
-                { 
-                  text: 'OK', 
-                  onPress: () => router.replace(`/consult-summary/summary/${consultId}` as any) 
-                },
-              ]);
-            } catch (error: any) {
-              console.error('Finalize error:', error);
-              Alert.alert('Error', 'Failed to finalize consultation.');
-            } finally {
-              setIsSaving(false);
-            }
-          },
-        },
-      ]
-    );
+      // Navigate directly to case summary
+      router.replace(`/consult-summary/summary/${consultId}` as any);
+    } catch (error: any) {
+      console.error('Finalize error:', error);
+      Alert.alert('Error', 'Failed to finalize consultation.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Switch Report Type Handler - Saves current data and navigates to the appropriate editor

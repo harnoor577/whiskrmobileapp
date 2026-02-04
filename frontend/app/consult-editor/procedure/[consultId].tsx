@@ -397,60 +397,44 @@ export default function ProcedureEditorScreen() {
   const handleFinalize = async () => {
     if (!consultId) return;
 
-    Alert.alert(
-      'Finalize Procedure Report',
-      'This will save and finalize the procedure report.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Finalize',
-          onPress: async () => {
-            setIsSaving(true);
-            try {
-              const { data: existingConsult } = await supabase
-                .from('consults')
-                .select('case_notes')
-                .eq('id', consultId)
-                .single();
+    setIsSaving(true);
+    try {
+      const { data: existingConsult } = await supabase
+        .from('consults')
+        .select('case_notes')
+        .eq('id', consultId)
+        .single();
 
-              let mergedCaseNotes: Record<string, unknown> = {};
-              if (existingConsult?.case_notes) {
-                try {
-                  mergedCaseNotes = typeof existingConsult.case_notes === 'string'
-                    ? JSON.parse(existingConsult.case_notes)
-                    : existingConsult.case_notes;
-                } catch {}
-              }
-              mergedCaseNotes.procedure = procedureData;
+      let mergedCaseNotes: Record<string, unknown> = {};
+      if (existingConsult?.case_notes) {
+        try {
+          mergedCaseNotes = typeof existingConsult.case_notes === 'string'
+            ? JSON.parse(existingConsult.case_notes)
+            : existingConsult.case_notes;
+        } catch {}
+      }
+      mergedCaseNotes.procedure = procedureData;
 
-              const { error } = await supabase
-                .from('consults')
-                .update({
-                  case_notes: JSON.stringify(mergedCaseNotes),
-                  visit_type: 'procedure',
-                  status: 'finalized',
-                  finalized_at: new Date().toISOString(),
-                })
-                .eq('id', consultId);
+      const { error } = await supabase
+        .from('consults')
+        .update({
+          case_notes: JSON.stringify(mergedCaseNotes),
+          visit_type: 'procedure',
+          status: 'finalized',
+          finalized_at: new Date().toISOString(),
+        })
+        .eq('id', consultId);
 
-              if (error) throw error;
+      if (error) throw error;
 
-              Alert.alert('Success', 'Procedure report saved and finalized.', [
-                { 
-                  text: 'OK', 
-                  onPress: () => router.replace(`/consult-summary/summary/${consultId}` as any) 
-                },
-              ]);
-            } catch (error: any) {
-              console.error('Finalize error:', error);
-              Alert.alert('Error', 'Failed to finalize procedure report.');
-            } finally {
-              setIsSaving(false);
-            }
-          },
-        },
-      ]
-    );
+      // Navigate directly to case summary
+      router.replace(`/consult-summary/summary/${consultId}` as any);
+    } catch (error: any) {
+      console.error('Finalize error:', error);
+      Alert.alert('Error', 'Failed to finalize procedure report.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Switch Report Type
