@@ -102,7 +102,6 @@ function FeatureItem({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafbfc',
   },
   content: {
     flex: 1,
@@ -118,7 +117,6 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 30,
-    backgroundColor: '#101235',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
@@ -126,12 +124,10 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 42,
     fontWeight: '700',
-    color: '#101235',
     letterSpacing: -1,
   },
   tagline: {
     fontSize: 16,
-    color: '#64748b',
     marginTop: 8,
   },
   featuresSection: {
@@ -140,17 +136,14 @@ const styles = StyleSheet.create({
   featureItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
     padding: 16,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
   },
   featureIcon: {
     width: 48,
     height: 48,
     borderRadius: 12,
-    backgroundColor: 'rgba(28, 232, 129, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -161,12 +154,10 @@ const styles = StyleSheet.create({
   featureTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#101235',
     marginBottom: 4,
   },
   featureDescription: {
     fontSize: 14,
-    color: '#64748b',
   },
   buttonsSection: {
     gap: 12,
