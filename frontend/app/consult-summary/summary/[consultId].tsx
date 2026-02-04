@@ -344,6 +344,12 @@ export default function CaseSummaryScreen() {
     Alert.alert('Copied', `${med.name} copied to clipboard`);
   };
 
+  const handleCopyDischarge = async () => {
+    if (!consult?.discharge_summary) return;
+    await Clipboard.setStringAsync(consult.discharge_summary);
+    Alert.alert('Copied', 'Discharge summary copied to clipboard');
+  };
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
