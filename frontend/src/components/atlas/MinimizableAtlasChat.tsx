@@ -15,14 +15,9 @@ import {
   Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { supabase } from '../../lib/supabase';
 import { AtlasEye } from './AtlasEye';
 import * as Clipboard from 'expo-clipboard';
-import Constants from 'expo-constants';
-
-// Get backend URL from environment
-const BACKEND_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || 
-                    process.env.EXPO_PUBLIC_BACKEND_URL || 
-                    '';
 
 interface MinimizableAtlasChatProps {
   transcription: string | null;
@@ -52,35 +47,6 @@ interface DifferentialItem {
 }
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-// API call helper function
-const callAnalyzeRecording = async (params: {
-  transcription?: string | null;
-  patientInfo?: { patientId: string; name: string; species: string } | null;
-  consultId?: string;
-  followUpQuestion?: string;
-  previousMessages?: Array<{ role: string; content: string }>;
-}) => {
-  try {
-    const response = await fetch(`${BACKEND_URL}/api/analyze-recording`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(params),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || `API error: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('API call error:', error);
-    throw error;
-  }
-};
 
 export const MinimizableAtlasChat: React.FC<MinimizableAtlasChatProps> = ({
   transcription,
@@ -163,13 +129,17 @@ export const MinimizableAtlasChat: React.FC<MinimizableAtlasChatProps> = ({
 
     setDifferentialsLoading(true);
     try {
-      const data = await callAnalyzeRecording({
-        transcription,
-        patientInfo,
-        consultId,
-        followUpQuestion: 'Based on this case, please provide your top 3-5 differential diagnoses. Format each as a numbered list (1. 2. 3. etc.) with just the condition name on each line.',
-        previousMessages: messages.map(m => ({ role: m.role, content: m.content })),
+      const { data, error } = await supabase.functions.invoke('analyze-recording', {
+        body: {
+          transcription,
+          patientInfo,
+          consultId,
+          followUpQuestion: 'Based on this case, please provide your top 3-5 differential diagnoses. Format each as a numbered list (1. 2. 3. etc.) with just the condition name on each line.',
+          previousMessages: messages,
+        },
       });
+
+      if (error) throw error;
 
       if (data?.analysis) {
         const parsed = parseDifferentials(data.analysis);
@@ -192,15 +162,38 @@ export const MinimizableAtlasChat: React.FC<MinimizableAtlasChatProps> = ({
     }
   }, [transcription, readOnly]);
 
-  // Load existing messages when in readOnly mode - using local storage or empty state
+  // Load existing messages when in readOnly mode
   useEffect(() => {
     if (!readOnly) return;
-    // In readOnly mode, we just show any messages we have
-    // For a full implementation, you'd load from a local database or API
-    setIsAnalyzing(false);
-    if (messages.length > 0) {
-      setShowSuggestions(true);
-    }
+
+    const loadExistingMessages = async () => {
+      setIsAnalyzing(true);
+      try {
+        const { data, error } = await supabase
+          .from('chat_messages')
+          .select('id, role, content, created_at')
+          .eq('consult_id', consultId)
+          .order('created_at', { ascending: true });
+
+        if (!error && data && data.length > 0) {
+          const formattedMessages: Message[] = data
+            .filter(m => m.role !== 'system')
+            .map(m => ({
+              id: m.id,
+              role: m.role as 'user' | 'assistant',
+              content: m.content,
+            }));
+          setMessages(formattedMessages);
+          setShowSuggestions(true);
+        }
+      } catch (error) {
+        console.error('Error loading messages:', error);
+      } finally {
+        setIsAnalyzing(false);
+      }
+    };
+
+    loadExistingMessages();
   }, [readOnly, consultId]);
 
   // Flash notification when new message arrives while minimized
