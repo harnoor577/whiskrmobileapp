@@ -166,83 +166,103 @@ export default function DashboardScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#1ce881" />
+      <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}>
+        <ActivityIndicator size="large" color={theme.primary} />
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top']}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#1ce881" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} />
         }
       >
-        {/* Hero Banner */}
-        <View style={styles.heroBanner}>
-          <View style={styles.heroAccent} />
-          <View style={styles.heroContent}>
-            <View style={styles.greetingRow}>
-              <Ionicons name={getTimeIcon() as any} size={20} color="#1ce881" />
-              <Text style={styles.greeting}>{getGreeting()},</Text>
-            </View>
-            <Text style={styles.userName}>{getDisplayName()}</Text>
-            <Text style={styles.heroSubtext}>
-              You've helped <Text style={styles.heroHighlight}>{metrics.totalPatients}</Text> patients
+        {/* Theme Toggle Row */}
+        <View style={[styles.themeToggleRow, { backgroundColor: theme.card, borderColor: theme.border }]}>
+          <View style={styles.themeToggleLeft}>
+            <Ionicons 
+              name={isDark ? 'moon' : 'sunny'} 
+              size={20} 
+              color={isDark ? '#fbbf24' : '#f59e0b'} 
+            />
+            <Text style={[styles.themeToggleText, { color: theme.textPrimary }]}>
+              {isDark ? 'Dark Mode' : 'Light Mode'}
             </Text>
           </View>
-          <View style={styles.heroIcon}>
-            <Ionicons name="medical" size={36} color="#1ce881" />
+          <Switch
+            value={isDark}
+            onValueChange={toggleTheme}
+            trackColor={{ false: theme.border, true: theme.primary }}
+            thumbColor="#ffffff"
+          />
+        </View>
+
+        {/* Hero Banner */}
+        <View style={[styles.heroBanner, { backgroundColor: theme.card }]}>
+          <View style={[styles.heroAccent, { backgroundColor: theme.primary }]} />
+          <View style={styles.heroContent}>
+            <View style={styles.greetingRow}>
+              <Ionicons name={getTimeIcon() as any} size={20} color={theme.primary} />
+              <Text style={[styles.greeting, { color: theme.textSecondary }]}>{getGreeting()},</Text>
+            </View>
+            <Text style={[styles.userName, { color: theme.textPrimary }]}>{getDisplayName()}</Text>
+            <Text style={[styles.heroSubtext, { color: theme.textSecondary }]}>
+              You've helped <Text style={[styles.heroHighlight, { color: theme.primary }]}>{metrics.totalPatients}</Text> patients
+            </Text>
+          </View>
+          <View style={[styles.heroIcon, { backgroundColor: `${theme.primary}20` }]}>
+            <Ionicons name="medical" size={36} color={theme.primary} />
           </View>
         </View>
 
         {/* Stats Grid */}
         <View style={styles.statsGrid}>
           <TouchableOpacity
-            style={styles.statCard}
+            style={[styles.statCard, { backgroundColor: theme.card, borderColor: theme.border }]}
             onPress={() => router.push('/(tabs)/patients')}
           >
-            <View style={[styles.statIconBg, { backgroundColor: 'rgba(28, 232, 129, 0.1)' }]}>
-              <Ionicons name="people" size={22} color="#1ce881" />
+            <View style={[styles.statIconBg, { backgroundColor: `${theme.primary}15` }]}>
+              <Ionicons name="people" size={22} color={theme.primary} />
             </View>
-            <Text style={styles.statNumber}>{metrics.totalPatients}</Text>
-            <Text style={styles.statLabel}>Patients</Text>
+            <Text style={[styles.statNumber, { color: theme.textPrimary }]}>{metrics.totalPatients}</Text>
+            <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Patients</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.statCard}>
-            <View style={[styles.statIconBg, { backgroundColor: 'rgba(59, 130, 246, 0.1)' }]}>
-              <Ionicons name="clipboard" size={22} color="#3b82f6" />
+          <TouchableOpacity style={[styles.statCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+            <View style={[styles.statIconBg, { backgroundColor: `${theme.info}15` }]}>
+              <Ionicons name="clipboard" size={22} color={theme.info} />
             </View>
-            <Text style={styles.statNumber}>{metrics.consultsThisWeek}</Text>
-            <Text style={styles.statLabel}>This Week</Text>
+            <Text style={[styles.statNumber, { color: theme.textPrimary }]}>{metrics.consultsThisWeek}</Text>
+            <Text style={[styles.statLabel, { color: theme.textSecondary }]}>This Week</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.statCard}>
-            <View style={[styles.statIconBg, { backgroundColor: 'rgba(245, 158, 11, 0.1)' }]}>
-              <Ionicons name="time" size={22} color="#f59e0b" />
+          <TouchableOpacity style={[styles.statCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+            <View style={[styles.statIconBg, { backgroundColor: `${theme.warning}15` }]}>
+              <Ionicons name="time" size={22} color={theme.warning} />
             </View>
-            <Text style={styles.statNumber}>{formatTimeSaved(metrics.timeSaved)}</Text>
-            <Text style={styles.statLabel}>Time Saved</Text>
+            <Text style={[styles.statNumber, { color: theme.textPrimary }]}>{formatTimeSaved(metrics.timeSaved)}</Text>
+            <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Time Saved</Text>
           </TouchableOpacity>
         </View>
 
         {/* Recent Patients */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Patients</Text>
+            <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>Recent Patients</Text>
             <TouchableOpacity onPress={() => router.push('/(tabs)/patients')}>
-              <Text style={styles.viewAllText}>View All</Text>
+              <Text style={[styles.viewAllText, { color: theme.primary }]}>View All</Text>
             </TouchableOpacity>
           </View>
 
           {recentPatients.length === 0 ? (
-            <View style={styles.emptyCard}>
-              <Ionicons name="paw" size={48} color="#e2e8f0" />
-              <Text style={styles.emptyText}>No patients yet</Text>
+            <View style={[styles.emptyCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+              <Ionicons name="paw" size={48} color={theme.border} />
+              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>No patients yet</Text>
               <Button
                 title="Add First Patient"
                 onPress={() => router.push('/(tabs)/patients')}
@@ -251,12 +271,13 @@ export default function DashboardScreen() {
               />
             </View>
           ) : (
-            <View style={styles.patientsList}>
+            <View style={[styles.patientsList, { backgroundColor: theme.card, borderColor: theme.border }]}>
               {recentPatients.map((patient, index) => (
                 <TouchableOpacity
                   key={patient.id}
                   style={[
                     styles.patientCard,
+                    { borderBottomColor: theme.border },
                     index === recentPatients.length - 1 && styles.patientCardLast,
                   ]}
                   onPress={() => router.push(`/(tabs)/patients?id=${patient.id}`)}
@@ -270,12 +291,12 @@ export default function DashboardScreen() {
                     <Ionicons name="paw" size={18} color="#ffffff" />
                   </View>
                   <View style={styles.patientInfo}>
-                    <Text style={styles.patientName}>{patient.name}</Text>
-                    <Text style={styles.patientBreed}>
+                    <Text style={[styles.patientName, { color: theme.textPrimary }]}>{patient.name}</Text>
+                    <Text style={[styles.patientBreed, { color: theme.textSecondary }]}>
                       {patient.breed || patient.species}
                     </Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={18} color="#94a3b8" />
+                  <Ionicons name="chevron-forward" size={18} color={theme.textTertiary} />
                 </TouchableOpacity>
               ))}
             </View>
