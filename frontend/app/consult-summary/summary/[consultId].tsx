@@ -178,9 +178,11 @@ export default function CaseSummaryScreen() {
   const [showEducationModal, setShowEducationModal] = useState(false);
   const [showMedicineModal, setShowMedicineModal] = useState(false);
   const [showRecordingModal, setShowRecordingModal] = useState(false);
+  const [showDischargeModal, setShowDischargeModal] = useState(false);
   
   // Generation states
   const [isGeneratingEducation, setIsGeneratingEducation] = useState(false);
+  const [isGeneratingDischarge, setIsGeneratingDischarge] = useState(false);
   const [extractedMedications, setExtractedMedications] = useState<ExtractedMedication[]>([]);
 
   useEffect(() => {
