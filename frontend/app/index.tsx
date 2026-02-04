@@ -5,10 +5,12 @@ import { useAuthStore } from '../src/store/authStore';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../src/components/ui/Button';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../src/contexts/ThemeContext';
 
 export default function WelcomeScreen() {
   const router = useRouter();
   const { user, loading, initialized } = useAuthStore();
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (initialized && !loading && user) {
