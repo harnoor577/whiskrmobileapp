@@ -267,10 +267,14 @@ export default function TabsLayout() {
           headerShown: false,
           tabBarStyle: [
             styles.tabBar,
-            { paddingBottom: insets.bottom > 0 ? insets.bottom : 12 },
+            { 
+              paddingBottom: insets.bottom > 0 ? insets.bottom : 12,
+              backgroundColor: theme.bottomBarBackground,
+              borderTopColor: theme.bottomBarBorder,
+            },
           ],
-          tabBarActiveTintColor: '#1ce881',
-          tabBarInactiveTintColor: '#64748b',
+          tabBarActiveTintColor: theme.primary,
+          tabBarInactiveTintColor: theme.textSecondary,
           tabBarLabelStyle: styles.tabBarLabel,
         }}
       >
