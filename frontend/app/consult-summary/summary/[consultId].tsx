@@ -110,6 +110,33 @@ function extractMedicationsFromConsult(consult: ConsultData): ExtractedMedicatio
   return medications.slice(0, 10); // Limit to 10 medications
 }
 
+// Parse discharge summary sections
+function parseDischargeSections(content: string) {
+  const sections: { title: string; content: string }[] = [];
+  
+  const patterns = [
+    { title: 'Summary', pattern: /(?:\d+\.\s*)?SUMMARY[:\s]*\n([\s\S]*?)(?=(?:\d+\.\s*)?KEY FINDINGS[:\s]*\n|$)/i },
+    { title: 'Key Findings', pattern: /(?:\d+\.\s*)?KEY FINDINGS[:\s]*\n([\s\S]*?)(?=(?:\d+\.\s*)?TREATMENT PLAN|$)/i },
+    { title: 'Treatment Plan and Care Instructions', pattern: /(?:\d+\.\s*)?TREATMENT PLAN AND CARE INSTRUCTIONS[:\s]*\n([\s\S]*?)(?=(?:\d+\.\s*)?SIGNS TO WATCH|$)/i },
+    { title: 'Signs to Watch For', pattern: /(?:\d+\.\s*)?SIGNS TO WATCH FOR[:\s]*\n([\s\S]*?)(?=(?:\d+\.\s*)?FOLLOW-UP|$)/i },
+    { title: 'Follow-Up Steps', pattern: /(?:\d+\.\s*)?FOLLOW-UP STEPS[:\s]*\n([\s\S]*?)$/i },
+  ];
+  
+  for (const { title, pattern } of patterns) {
+    const match = content.match(pattern);
+    if (match && match[1]?.trim()) {
+      sections.push({ title, content: match[1].trim() });
+    }
+  }
+  
+  // If no sections found, return the whole content as one section
+  if (sections.length === 0 && content.trim()) {
+    sections.push({ title: 'Discharge Summary', content: content.trim() });
+  }
+  
+  return sections;
+}
+
 // Parse client education sections
 function parseEducationSections(content: string) {
   const sections: { title: string; content: string }[] = [];
