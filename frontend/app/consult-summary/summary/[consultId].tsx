@@ -30,10 +30,12 @@ interface ConsultData {
   status: string;
   created_at: string;
   finalized_at?: string;
+  visit_type?: string;
   soap_s?: string;
   soap_o?: string;
   soap_a?: string;
   soap_p?: string;
+  case_notes?: string;
   discharge_summary?: string;
   client_education?: string;
   original_input?: string;
@@ -45,6 +47,14 @@ interface ConsultData {
     sex?: string;
     identifiers?: { patient_id?: string };
   };
+}
+
+interface WellnessData {
+  [key: string]: string;
+}
+
+interface ProcedureData {
+  [key: string]: string;
 }
 
 interface ExtractedMedication {
