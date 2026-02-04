@@ -20,6 +20,8 @@ import { supabase } from '../../../src/lib/supabase';
 import { useAuthStore } from '../../../src/store/authStore';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
+import { MinimizableAtlasChat } from '../../../src/components/atlas/MinimizableAtlasChat';
+import { AtlasEye } from '../../../src/components/atlas/AtlasEye';
 
 interface SOAPData {
   subjective: string;
