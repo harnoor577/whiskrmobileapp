@@ -252,6 +252,9 @@ export default function CaseSummaryScreen() {
             </View>
           ))}
         </View>
+        
+        {/* Bottom padding for navigation bar */}
+        <View style={{ height: 100 }} />
       </ScrollView>
 
       {/* Bottom Actions */}
